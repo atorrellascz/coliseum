@@ -1,0 +1,47 @@
+# ---- Private, never committed: Spanish planning / interview notes ----
+_referencia/
+
+# ---- .NET ----
+bin/
+obj/
+*.user
+*.suo
+*.swp
+.vs/
+.idea/
+*.DotSettings.user
+TestResults/
+coverage/
+*.trx
+*.nupkg
+*.snupkg
+artifacts/
+
+# ---- Local secrets and env ----
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+*.pfx
+*.key
+
+# ---- Terraform ----
+deploy/terraform/.terraform/
+deploy/terraform/*.tfstate
+deploy/terraform/*.tfstate.*
+deploy/terraform/.terraform.lock.hcl
+deploy/terraform/crash.log
+
+# ---- Helm ----
+deploy/helm/**/charts/
+deploy/helm/**/*.tgz
+
+# ---- Node / tooling ----
+node_modules/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Media (video goes to Drive/YouTube, link in README) ----
+docs/*.mp4

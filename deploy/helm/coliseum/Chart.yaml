@@ -1,0 +1,6 @@
+apiVersion: v2
+name: coliseum
+description: Coliseum API, worker and MCP server (STUB, MP-09)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

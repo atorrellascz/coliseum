@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Fast tests, no I/O: domain rules, engine, scheduler, use cases with in-memory fakes, architecture rules. Target: < 5 s. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/Coliseum.Domain/Coliseum.Domain.csproj" />
+    <ProjectReference Include="../../src/Coliseum.Application/Coliseum.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+</Project>

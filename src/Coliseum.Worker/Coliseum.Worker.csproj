@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    Battle processor host. Web SDK on purpose (ADR-09): it must expose /healthz and /metrics
+    for Kubernetes probes and Prometheus scraping. Runs the stream consumer + BattleScheduler.
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Worker</RootNamespace>
+    <UserSecretsId>coliseum-worker</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Coliseum.Application/Coliseum.Application.csproj" />
+    <ProjectReference Include="../Coliseum.Infrastructure.Redis/Coliseum.Infrastructure.Redis.csproj" />
+    <ProjectReference Include="../Coliseum.ServiceDefaults/Coliseum.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coliseum.IntegrationTests" />
+  </ItemGroup>
+</Project>

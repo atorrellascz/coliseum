@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Use cases + ports (interfaces) + the in-memory BattleScheduler + telemetry instruments.
+    Knows nothing about Redis or HTTP. Only abstractions from Microsoft.Extensions are allowed.
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Coliseum.Domain/Coliseum.Domain.csproj" />
+    <ProjectReference Include="../Coliseum.Contracts/Coliseum.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coliseum.UnitTests" />
+  </ItemGroup>
+</Project>

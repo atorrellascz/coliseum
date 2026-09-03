@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Against a real Redis (Testcontainers locally, service container in CI). API tests via WebApplicationFactory. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/Coliseum.Infrastructure.Redis/Coliseum.Infrastructure.Redis.csproj" />
+    <ProjectReference Include="../../src/Coliseum.Api/Coliseum.Api.csproj" />
+    <ProjectReference Include="../../src/Coliseum.Worker/Coliseum.Worker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="NSubstitute" />
+  </ItemGroup>
+</Project>

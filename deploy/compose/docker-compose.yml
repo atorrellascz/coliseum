@@ -1,0 +1,3 @@
+# STUB (MP-09). Services: redis (appendonly, noeviction), api:8080, worker:8081, mcp:8082, grafana/otel-lgtm:3000/4317.
+name: coliseum
+services: {}

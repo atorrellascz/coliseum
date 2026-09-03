@@ -1,0 +1,12 @@
+# STUB (MP-10). Planned jobs: restore/build -> unit + regression tests -> integration tests (services: redis:7)
+# -> dotnet format --verify-no-changes -> docker build (sbom, provenance) -> trivy -> helm lint + kubeconform -> terraform validate.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CI pipeline is defined in MP-10"

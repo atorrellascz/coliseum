@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The ONLY project that knows Redis. One adapter per Application port, Lua scripts as
+    embedded resources, a single ConnectionMultiplexer, key schema, health check.
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Infrastructure.Redis</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Coliseum.Application/Coliseum.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lua scripts ship inside the assembly; loaded once with SCRIPT LOAD, invoked with EVALSHA -->
+    <EmbeddedResource Include="Scripts/*.lua" LogicalName="Coliseum.Redis.Scripts.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coliseum.IntegrationTests" />
+  </ItemGroup>
+</Project>

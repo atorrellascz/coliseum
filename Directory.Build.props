@@ -1,0 +1,38 @@
+<Project>
+  <!--
+    Solution-wide build settings. Every project under src/ and tests/ inherits this file.
+    Quality gates are ON from the first commit: nullable, analyzers, warnings-as-errors,
+    deterministic builds. Individual projects only override what they must.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Quality gates -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- Reproducible builds (same inputs => same binary) -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Runtime hygiene -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <UseAppHost>false</UseAppHost>
+
+    <!-- Package metadata (only Domain and Contracts set IsPackable=true) -->
+    <IsPackable>false</IsPackable>
+    <Authors>Atahualpa Torrellas</Authors>
+    <Company>Coliseum</Company>
+    <Product>Coliseum</Product>
+    <Version>0.1.0</Version>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

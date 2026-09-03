@@ -1,0 +1,3 @@
+-- create_player.lua
+-- Atomic name uniqueness: SET NX on player:name:{NORMALIZED}; only on success write the player hash.
+-- Status: STUB - implemented in MP-05.

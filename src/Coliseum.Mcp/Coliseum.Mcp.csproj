@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    Model Context Protocol server (official C# SDK). Exposes the game to AI agents as tools:
+    create_player, submit_battle, get_battle_report, get_leaderboard, simulate_battle.
+    Transport: Streamable HTTP (ASP.NET Core) and stdio (for local Claude/IDE clients).
+    Talks to the API over HTTP with a service token (thin adapter, respects API auth) and
+    runs simulate_battle locally with the Domain engine (same NuGet a Unity client would use).
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Mcp</RootNamespace>
+    <UserSecretsId>coliseum-mcp</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Coliseum.Domain/Coliseum.Domain.csproj" />
+    <ProjectReference Include="../Coliseum.Contracts/Coliseum.Contracts.csproj" />
+    <ProjectReference Include="../Coliseum.ServiceDefaults/Coliseum.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+  </ItemGroup>
+</Project>

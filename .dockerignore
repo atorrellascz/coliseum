@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/TestResults/
+.git/
+.github/
+_referencia/
+deploy/
+docs/
+load/
+tests/
+*.md
+!README.md

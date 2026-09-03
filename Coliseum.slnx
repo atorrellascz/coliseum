@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Coliseum.Api/Coliseum.Api.csproj" />
+    <Project Path="src/Coliseum.Application/Coliseum.Application.csproj" />
+    <Project Path="src/Coliseum.Contracts/Coliseum.Contracts.csproj" />
+    <Project Path="src/Coliseum.Domain/Coliseum.Domain.csproj" />
+    <Project Path="src/Coliseum.Infrastructure.Redis/Coliseum.Infrastructure.Redis.csproj" />
+    <Project Path="src/Coliseum.Mcp/Coliseum.Mcp.csproj" />
+    <Project Path="src/Coliseum.ServiceDefaults/Coliseum.ServiceDefaults.csproj" />
+    <Project Path="src/Coliseum.Worker/Coliseum.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Coliseum.IntegrationTests/Coliseum.IntegrationTests.csproj" />
+    <Project Path="tests/Coliseum.RegressionTests/Coliseum.RegressionTests.csproj" />
+    <Project Path="tests/Coliseum.UnitTests/Coliseum.UnitTests.csproj" />
+  </Folder>
+</Solution>

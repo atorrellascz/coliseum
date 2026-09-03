@@ -1,0 +1,4 @@
+-- apply_battle.lua
+-- Idempotent settlement (ADR-03): if battle:{id}.status == done return previous result and touch nothing;
+-- else compute loot on the CURRENT loser balance, debit loser, credit winner (cap 1e9), ZINCRBY leaderboard, mark done.
+-- Status: STUB - implemented in MP-05.

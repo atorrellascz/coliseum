@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The heart of the system: entities, value objects, battle engine, deterministic RNG.
+    RULE: zero runtime PackageReference. No I/O, no System.Random, no DateTime.Now.
+    An architecture test in Coliseum.UnitTests fails the build if a package sneaks in.
+    Packed as a NuGet so a Unity client or a balance tool can run the exact same engine.
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Domain</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>Coliseum.Domain</PackageId>
+    <Description>Coliseum battle engine and domain model. Pure, deterministic, dependency-free.</Description>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Build-time only (PrivateAssets=All): does not become a runtime dependency of the package -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Coliseum.UnitTests" />
+    <InternalsVisibleTo Include="Coliseum.RegressionTests" />
+  </ItemGroup>
+</Project>

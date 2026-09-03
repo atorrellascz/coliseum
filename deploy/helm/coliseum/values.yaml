@@ -1,0 +1,2 @@
+# STUB (MP-09): api (Deployment/Service/HPA/PDB), worker (1 replica, Recreate), mcp, redis (embedded StatefulSet or external endpoint),
+# secrets / ExternalSecret, NetworkPolicy, optional ServiceMonitor + PrometheusRule.

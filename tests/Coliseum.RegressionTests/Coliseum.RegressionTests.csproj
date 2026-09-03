@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Golden-file tests: fixed seeds -> frozen battle reports in golden/*.json. A rule change breaks them on purpose. Regenerate with UPDATE_GOLDEN=1. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/Coliseum.Domain/Coliseum.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="golden/*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

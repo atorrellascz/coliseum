@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Wire contracts shared by API, SignalR hub, MCP server, JS clients and a future Unity client:
+    request/response DTOs, live events, error shapes. No logic, no dependencies. Packed as NuGet.
+  -->
+  <PropertyGroup>
+    <RootNamespace>Coliseum.Contracts</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>Coliseum.Contracts</PackageId>
+    <Description>Coliseum public API and event contracts (DTOs).</Description>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

@@ -21,6 +21,10 @@
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
 
+    <!-- SourceLink needs a git remote; enable it only in CI (GitHub Actions) so local builds stay warning-free -->
+    <EnableSourceLink Condition="'$(GITHUB_ACTIONS)' != 'true'">false</EnableSourceLink>
+    <EnableSourceControlManagerQueries Condition="'$(GITHUB_ACTIONS)' != 'true'">false</EnableSourceControlManagerQueries>
+
     <!-- Runtime hygiene -->
     <InvariantGlobalization>true</InvariantGlobalization>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

@@ -1,0 +1,11 @@
+# Normalize line endings: LF in the repo and in working copies on every OS (analyzers and diffs stay stable).
+* text=auto eol=lf
+*.sh text eol=lf
+*.lua text eol=lf
+Makefile text eol=lf
+# Binary assets
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp4 binary
+*.pfx binary

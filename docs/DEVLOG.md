@@ -4,4 +4,4 @@ One entry per step, newest at the bottom. Public counterpart of the private plan
 
 | Date | Step | What | Verification |
 |------|------|------|--------------|
-| 2026-09-03 | MP-02 | Solution skeleton: 8 src projects, 3 test projects, Central Package Management with pinned versions, analyzers as errors, commented stubs for every planned file, deploy/docs placeholders. | `dotnet restore` OK on all projects |
+| 2026-09-03 | MP-02 | Solution skeleton: 8 src projects, 3 test projects, Central Package Management with pinned versions, analyzers as errors, commented stubs for every planned file, deploy/docs placeholders. | `dotnet restore` OK on all 11 projects; `dotnet build` of the 5 class libraries + Unit/Regression tests: 0 warnings, 0 errors. Hosts compile from MP-06. |

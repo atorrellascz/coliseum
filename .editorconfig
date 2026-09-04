@@ -32,7 +32,20 @@ dotnet_style_readonly_field = true:error
 dotnet_style_qualification_for_field = false:error
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
 
-# Naming: private fields _camelCase
+# Naming: private const / static fields PascalCase; private instance fields _camelCase (first matching rule wins)
+dotnet_naming_rule.private_const_pascal.symbols = private_const_fields
+dotnet_naming_rule.private_const_pascal.style = pascal_case_style
+dotnet_naming_rule.private_const_pascal.severity = error
+dotnet_naming_symbols.private_const_fields.applicable_kinds = field
+dotnet_naming_symbols.private_const_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_const_fields.required_modifiers = const
+dotnet_naming_rule.private_static_pascal.symbols = private_static_fields
+dotnet_naming_rule.private_static_pascal.style = pascal_case_style
+dotnet_naming_rule.private_static_pascal.severity = error
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields
 dotnet_naming_rule.private_fields_underscore.style = underscore_camel
 dotnet_naming_rule.private_fields_underscore.severity = error

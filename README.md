@@ -2,8 +2,8 @@
 
 Backend service + battle engine for the "Backend Development Hands-on Test".
 
-> Status: **MP-02 skeleton**. Solution structure, projects and dependencies are in place.
-> No business code yet. See `docs/DEVLOG.md` for the step-by-step build log.
+> Status: **MP-03 done** (domain + battle engine, 82 tests green). Hosts arrive in MP-06.
+> Progress board: `docs/TASKS.md`. Step-by-step log: `docs/DEVLOG.md`.
 
 ## Stack
 

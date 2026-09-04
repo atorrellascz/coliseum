@@ -1,4 +1,6 @@
 # Developer entry points. Works with GNU make on Linux/macOS/Git Bash.
+# NOTE: dotnet test runs in Microsoft.Testing.Platform mode (global.json). Never pass --nologo to it:
+# the flag is forwarded to the test app, which rejects it with exit code 5 and reports "Zero tests ran".
 # STUB (MP-02): targets are declared; bodies are wired as each micro-project lands.
 
 .PHONY: build test test-unit test-integration run-api run-worker run-mcp compose-up compose-down smoke format pack
@@ -6,15 +8,14 @@
 build:
 	dotnet build Coliseum.slnx -c Release
 
-test:
-	dotnet test Coliseum.slnx -c Release
+test: test-unit test-integration
 
 test-unit:
-	dotnet test tests/Coliseum.UnitTests -c Release
-	dotnet test tests/Coliseum.RegressionTests -c Release
+	dotnet test --project tests/Coliseum.UnitTests -c Release
+	dotnet test --project tests/Coliseum.RegressionTests -c Release
 
 test-integration:
-	dotnet test tests/Coliseum.IntegrationTests -c Release
+	dotnet test --project tests/Coliseum.IntegrationTests -c Release
 
 run-api:
 	dotnet run --project src/Coliseum.Api

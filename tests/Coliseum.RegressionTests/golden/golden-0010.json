@@ -1,0 +1,47 @@
+{
+  "BattleId": {
+    "Value": "golden-0010"
+  },
+  "Seed": 14120387811340062930,
+  "AttackerId": {
+    "Value": "attacker"
+  },
+  "DefenderId": {
+    "Value": "defender"
+  },
+  "WinnerId": {
+    "Value": "attacker"
+  },
+  "LoserId": {
+    "Value": "defender"
+  },
+  "Turns": 1,
+  "Events": [
+    {
+      "Turn": 1,
+      "AttackerId": {
+        "Value": "attacker"
+      },
+      "DefenderId": {
+        "Value": "defender"
+      },
+      "AttackerHpBefore": 230,
+      "DefenderHpBefore": 110,
+      "AttackValueUsed": 110,
+      "DodgeChanceBasisPoints": 833,
+      "Roll": 2555,
+      "Hit": true,
+      "Damage": 110,
+      "DefenderHpAfter": 0
+    }
+  ],
+  "Loot": {
+    "Percent": 10,
+    "Gold": 999,
+    "Silver": 7,
+    "Total": 1006
+  },
+  "AttackerHpRemaining": 230,
+  "DefenderHpRemaining": 0,
+  "AttackerWon": true
+}

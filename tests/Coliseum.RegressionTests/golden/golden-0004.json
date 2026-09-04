@@ -1,0 +1,166 @@
+{
+  "BattleId": {
+    "Value": "golden-0004"
+  },
+  "Seed": 14121383968875032871,
+  "AttackerId": {
+    "Value": "attacker"
+  },
+  "DefenderId": {
+    "Value": "defender"
+  },
+  "WinnerId": {
+    "Value": "defender"
+  },
+  "LoserId": {
+    "Value": "attacker"
+  },
+  "Turns": 8,
+  "Events": [
+    {
+      "Turn": 1,
+      "AttackerId": {
+        "Value": "attacker"
+      },
+      "DefenderId": {
+        "Value": "defender"
+      },
+      "AttackerHpBefore": 140,
+      "DefenderHpBefore": 164,
+      "AttackValueUsed": 68,
+      "DodgeChanceBasisPoints": 3703,
+      "Roll": 7725,
+      "Hit": true,
+      "Damage": 68,
+      "DefenderHpAfter": 96
+    },
+    {
+      "Turn": 2,
+      "AttackerId": {
+        "Value": "defender"
+      },
+      "DefenderId": {
+        "Value": "attacker"
+      },
+      "AttackerHpBefore": 96,
+      "DefenderHpBefore": 140,
+      "AttackValueUsed": 43,
+      "DodgeChanceBasisPoints": 4109,
+      "Roll": 7213,
+      "Hit": true,
+      "Damage": 43,
+      "DefenderHpAfter": 97
+    },
+    {
+      "Turn": 3,
+      "AttackerId": {
+        "Value": "attacker"
+      },
+      "DefenderId": {
+        "Value": "defender"
+      },
+      "AttackerHpBefore": 97,
+      "DefenderHpBefore": 96,
+      "AttackValueUsed": 47,
+      "DodgeChanceBasisPoints": 4597,
+      "Roll": 9223,
+      "Hit": true,
+      "Damage": 47,
+      "DefenderHpAfter": 49
+    },
+    {
+      "Turn": 4,
+      "AttackerId": {
+        "Value": "defender"
+      },
+      "DefenderId": {
+        "Value": "attacker"
+      },
+      "AttackerHpBefore": 49,
+      "DefenderHpBefore": 97,
+      "AttackValueUsed": 37,
+      "DodgeChanceBasisPoints": 4477,
+      "Roll": 9178,
+      "Hit": true,
+      "Damage": 37,
+      "DefenderHpAfter": 60
+    },
+    {
+      "Turn": 5,
+      "AttackerId": {
+        "Value": "attacker"
+      },
+      "DefenderId": {
+        "Value": "defender"
+      },
+      "AttackerHpBefore": 60,
+      "DefenderHpBefore": 49,
+      "AttackValueUsed": 34,
+      "DodgeChanceBasisPoints": 5405,
+      "Roll": 8456,
+      "Hit": true,
+      "Damage": 34,
+      "DefenderHpAfter": 15
+    },
+    {
+      "Turn": 6,
+      "AttackerId": {
+        "Value": "defender"
+      },
+      "DefenderId": {
+        "Value": "attacker"
+      },
+      "AttackerHpBefore": 15,
+      "DefenderHpBefore": 60,
+      "AttackValueUsed": 37,
+      "DodgeChanceBasisPoints": 4477,
+      "Roll": 5206,
+      "Hit": true,
+      "Damage": 37,
+      "DefenderHpAfter": 23
+    },
+    {
+      "Turn": 7,
+      "AttackerId": {
+        "Value": "attacker"
+      },
+      "DefenderId": {
+        "Value": "defender"
+      },
+      "AttackerHpBefore": 23,
+      "DefenderHpBefore": 15,
+      "AttackValueUsed": 34,
+      "DodgeChanceBasisPoints": 5405,
+      "Roll": 2146,
+      "Hit": false,
+      "Damage": 0,
+      "DefenderHpAfter": 15
+    },
+    {
+      "Turn": 8,
+      "AttackerId": {
+        "Value": "defender"
+      },
+      "DefenderId": {
+        "Value": "attacker"
+      },
+      "AttackerHpBefore": 15,
+      "DefenderHpBefore": 23,
+      "AttackValueUsed": 37,
+      "DodgeChanceBasisPoints": 4477,
+      "Roll": 4581,
+      "Hit": true,
+      "Damage": 37,
+      "DefenderHpAfter": 0
+    }
+  ],
+  "Loot": {
+    "Percent": 6,
+    "Gold": 120,
+    "Silver": 29,
+    "Total": 149
+  },
+  "AttackerHpRemaining": 0,
+  "DefenderHpRemaining": 15,
+  "AttackerWon": false
+}

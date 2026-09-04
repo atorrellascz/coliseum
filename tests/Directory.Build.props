@@ -5,8 +5,10 @@
   <PropertyGroup>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
-    <!-- xunit.v3 test projects are executables -->
+    <!-- xunit.v3 test projects are executables and run on Microsoft.Testing.Platform (the .NET 10 "dotnet test" runner, see global.json) -->
     <OutputType>Exe</OutputType>
+    <UseAppHost>true</UseAppHost>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     <NoWarn>$(NoWarn);CA1707;CA1861;CA2007;CA1515</NoWarn>
   </PropertyGroup>
 
@@ -14,7 +16,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Shouldly" />
   </ItemGroup>
 

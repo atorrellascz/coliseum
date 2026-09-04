@@ -17,7 +17,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-07 | SignalR hub + arena auto-play client | [x] code done, review pending | see DEVLOG |
 | MP-08 | Back-office (RED / USE / economy) + admin stats | [ ] | |
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
-| MP-10 | GitHub Actions CI + release | [x] workflows pushed, first run pending verification | see DEVLOG |
+| MP-10 | GitHub Actions CI + release | [x] CI green on GitHub (run 33928977302) | 41b62e7, 2cc0cdf |
 | MP-11 | Argo CD + Rollouts canary | [ ] | |
 | MP-12 | Final docs, video, tag v1.0.0 | [ ] | |
 
@@ -183,7 +183,7 @@ Verification for MP-07 DoD
 - [x] .github/workflows/ci.yml — build + format + unit/regression; integration with a redis service container; images (matrix) + Trivy; helm lint + kubeconform
 - [x] .github/workflows/release.yml — GHCR images with SBOM/provenance, NuGet packages to GitHub Packages, Helm chart as OCI
 - [x] docs/ci.md; README badge
-- [ ] First CI run green on GitHub (verify after push)
+- [x] First real CI run green: build-test, integration (Redis service container), images ×3 + Trivy, helm + kubeconform (run 33928977302). A first attempt failed on a non-existent `trivy-action@0.28.0` tag; pinned to v0.36.0.
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

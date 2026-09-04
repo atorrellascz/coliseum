@@ -11,9 +11,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-02 | Solution skeleton, CPM, analyzers, stubs, docs placeholders | [x] | c868c18, 7080a1d |
 | MP-03 | Domain: value objects, Player aggregate, PRNG, BattleEngine, unit + golden tests | [x] code done, review pending | see DEVLOG |
 | MP-04 | Application: ports, use cases, BattleScheduler, telemetry, fakes | [x] code done, review pending | see DEVLOG |
-| MP-05 | Redis adapters, Lua scripts, integration tests (Testcontainers) | [ ] | |
-| MP-06 | API + Worker hosts, ServiceDefaults, auth, smoke script | [ ] | |
-| MP-06b | MCP server (tools over the API + local simulation) | [ ] | |
+| MP-05 | Redis adapters, Lua scripts, integration tests (Testcontainers) | [x] code done, review pending | see DEVLOG |
+| MP-06 | API + Worker hosts, ServiceDefaults, auth, smoke script | [x] code done, review pending | see DEVLOG |
+| MP-06b | MCP server (tools over the API + local simulation) | [x] code done, review pending | see DEVLOG |
 | MP-07 | SignalR hub + arena auto-play client | [ ] | |
 | MP-08 | Back-office (RED / USE / economy) + admin stats | [ ] | |
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [ ] | |
@@ -101,6 +101,48 @@ Verification for MP-04 DoD
 Deferred from MP-04
 - Per-turn live events (`BattleTurnEvent`) are published in MP-07 with throttling; the contract exists already.
 - `IGameStats` port and adapter: MP-08.
+
+## MP-05 checklist (review one by one)
+
+`src/Coliseum.Infrastructure.Redis`
+- [x] Connection/RedisOptions.cs, RedisConnectionFactory.cs — one multiplexer, AbortOnConnectFail=false
+- [x] Keys/RedisKeys.cs — the whole key schema
+- [x] Scripts/LuaScripts.cs + create_player.lua, apply_battle.lua, mark_battle.lua
+- [x] Serialization/ColiseumJsonContext.cs — source-generated JSON, ids as plain strings
+- [x] Adapters/RedisPlayerRepository.cs, RedisBattleQueue.cs, RedisBattleLedger.cs, RedisBattleReportStore.cs, RedisLeaderboard.cs, RedisEventPublisher.cs, UlidIdGenerator.cs, SystemClock.cs
+- [x] Health/RedisHealthCheck.cs, DependencyInjection/RedisServiceCollectionExtensions.cs
+- [ ] Adapters/RedisGameStats.cs — stub until MP-08
+
+`tests/Coliseum.IntegrationTests` (Testcontainers Redis 7, or `REDIS_URL`)
+- [x] Fixtures/RedisFixture.cs — container per assembly, key prefix per test
+- [x] Redis/PlayerRepositoryTests.cs, BattleQueueTests.cs, BattleLedgerTests.cs, LeaderboardTests.cs, BattleReportStoreTests.cs
+
+## MP-06 checklist (review one by one)
+
+- [x] ServiceDefaults/Extensions.cs, HealthEndpoints.cs — OTel, Prometheus, OTLP opt-in, health, REDIS_URL alias
+- [x] Api/Program.cs, ApiAssemblyMarker.cs, appsettings*.json
+- [x] Api/Auth/AuthPolicies.cs, HmacJwtTokenService.cs, ApiKeyExchange.cs
+- [x] Api/Endpoints/PlayerEndpoints.cs, BattleEndpoints.cs, LeaderboardEndpoints.cs
+- [x] Api/Middleware/ProblemDetailsMapping.cs, SecurityHeaders.cs; Api/Options/RateLimitOptions.cs
+- [ ] Api/Hubs/* — MP-07; Api/Endpoints/AdminEndpoints — MP-08
+- [x] Worker/Program.cs, WorkerAssemblyMarker.cs, appsettings*.json
+- [x] Worker/Processing/BattleProcessorService.cs, BattleExecutor.cs, WorkerHealthCheck.cs; Worker/Options/WorkerOptions.cs
+- [x] scripts/smoke.sh — curl only, no jq
+- [x] IntegrationTests/Fixtures/ApiFactory.cs (+ WorkerFactory), Api/AuthTests.cs, PlayerEndpointTests.cs, BattleEndpointTests.cs, LeaderboardEndpointTests.cs, Worker/EndToEndTests.cs
+
+## MP-06b checklist (review one by one)
+
+- [x] Mcp/Program.cs — Streamable HTTP on /mcp or `--stdio`
+- [x] Mcp/Options/McpOptions.cs, McpApiKeyGuard.cs, ServiceTokenProvider.cs, ColiseumApiClient.cs
+- [x] Mcp/Tools/PlayerTools.cs, BattleTools.cs, LeaderboardTools.cs, SimulationTools.cs
+- [x] docs/mcp.md
+
+Verification for MP-05 / MP-06 / MP-06b DoD
+- [x] `dotnet build Coliseum.slnx`: succeeded, 0 warnings; `dotnet format` clean on every project
+- [x] UnitTests 103 / 103 · RegressionTests 10 / 10 · IntegrationTests 33 / 33 (real Redis via Testcontainers, API + worker end-to-end)
+- [x] Live run: Redis container + API + Worker + MCP, `scripts/smoke.sh` OK, MCP initialize handshake OK (see DEVLOG)
+- [ ] User reviewed every file above
+- [x] Docs: architecture.md (SDD), redis-data-model.md, api.md, mcp.md, ADR-0016
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

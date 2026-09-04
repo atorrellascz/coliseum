@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Coliseum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem; color: #222; }
+    a { color: #0b5cad; }
+    code { background: #f3f3f3; padding: .1rem .3rem; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Coliseum</h1>
+  <p>Backend service and battle engine. Every business endpoint needs a bearer token; see the API reference.</p>
+  <ul>
+    <li><a href="/scalar">API reference (Scalar)</a></li>
+    <li><a href="/healthz/ready">Readiness</a> · <a href="/healthz/live">Liveness</a> · <a href="/metrics">Metrics</a></li>
+    <li><a href="/arena/">Arena auto-play client</a> (MP-07) · <a href="/backoffice/">Back-office</a> (MP-08)</li>
+  </ul>
+  <p>Get a service token with <code>POST /auth/token</code> and the <code>X-Api-Key</code> header.</p>
+</body>
+</html>

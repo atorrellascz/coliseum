@@ -16,19 +16,26 @@ namespace Coliseum.Application;
 /// </summary>
 public static class DependencyInjection
 {
+    /// <summary>Everything the API needs: rules, every request handler and the processing handler. Requires an <c>IAuthTokenService</c>.</summary>
     public static IServiceCollection AddColiseumApplication(this IServiceCollection services)
     {
-        services.AddOptions<BattleRulesOptions>().ValidateOnStart();
-        services.TryAddSingleton<IValidateOptions<BattleRulesOptions>, BattleRulesOptionsValidator>();
-        services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<BattleRulesOptions>>().Value.ToRules());
-
-        services.AddOptions<AuthOptions>().ValidateDataAnnotations().ValidateOnStart();
+        services.AddColiseumProcessing();
 
         services.TryAddScoped<CreatePlayerHandler>();
         services.TryAddScoped<GetPlayerHandler>();
         services.TryAddScoped<SubmitBattleHandler>();
         services.TryAddScoped<GetBattleHandler>();
         services.TryAddScoped<GetLeaderboardHandler>();
+
+        return services;
+    }
+
+    /// <summary>The worker's subset: battle rules and <see cref="ProcessBattleHandler"/>. No token service needed.</summary>
+    public static IServiceCollection AddColiseumProcessing(this IServiceCollection services)
+    {
+        services.AddOptions<BattleRulesOptions>().ValidateOnStart();
+        services.TryAddSingleton<IValidateOptions<BattleRulesOptions>, BattleRulesOptionsValidator>();
+        services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<BattleRulesOptions>>().Value.ToRules());
         services.TryAddScoped<ProcessBattleHandler>();
 
         return services;

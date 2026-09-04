@@ -33,7 +33,7 @@ compose-down:
 	docker compose -f deploy/compose/docker-compose.yml down -v
 
 smoke:
-	bash scripts/smoke.sh
+	API_URL=${API_URL:-http://localhost:8080} API_KEY=${API_KEY:-dev-service-key} bash scripts/smoke.sh
 
 format:
 	dotnet format Coliseum.slnx --verify-no-changes

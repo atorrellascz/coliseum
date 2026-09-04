@@ -1,4 +1,33 @@
-// PlayerEndpoints.cs
-// Project: Coliseum.Api
-// Purpose: POST /players (Service), GET /players/{id}
-// Status: STUB - implemented in MP-06. Design: docs/adr (public) and _referencia (private).
+using Coliseum.Api.Auth;
+using Coliseum.Api.Middleware;
+using Coliseum.Application.UseCases.Players;
+using Coliseum.Contracts.Players;
+
+namespace Coliseum.Api.Endpoints;
+
+/// <summary>REQ-02: create and read players. Creation is a service operation; profiles are readable by any token.</summary>
+public static class PlayerEndpoints
+{
+    public static IEndpointRouteBuilder MapPlayerEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/players").WithTags("Players");
+
+        group.MapPost("/", async (CreatePlayerRequest request, CreatePlayerHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(request, cancellationToken))
+                    .ToResult(created => Results.Created($"/players/{created.Player.Id}", created)))
+            .RequireAuthorization(AuthPolicies.Service)
+            .WithSummary("Create a player (service token). Returns the player and a player-scoped token.")
+            .Produces<CreatePlayerResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapGet("/{id}", async (string id, GetPlayerHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(id, cancellationToken)).ToResult(Results.Ok))
+            .RequireAuthorization(AuthPolicies.PlayerOrService)
+            .WithSummary("Read a player profile")
+            .Produces<PlayerResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        return app;
+    }
+}

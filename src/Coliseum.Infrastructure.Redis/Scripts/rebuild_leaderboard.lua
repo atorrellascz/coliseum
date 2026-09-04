@@ -1,3 +1,0 @@
--- rebuild_leaderboard.lua
--- Runbook RB-05: recompute the leaderboard from battle:* hashes and compare.
--- Status: STUB - implemented in MP-08.

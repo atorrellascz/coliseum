@@ -1,4 +1,9 @@
-// SystemClock.cs
-// Project: Coliseum.Infrastructure.Redis
-// Purpose: IClock backed by TimeProvider.System
-// Status: STUB - implemented in MP-05. Design: docs/adr (public) and _referencia (private).
+using Coliseum.Application.Ports;
+
+namespace Coliseum.Infrastructure.Redis.Adapters;
+
+/// <summary>Production clock. Wraps <see cref="TimeProvider"/> so hosts can still substitute a fake provider.</summary>
+public sealed class SystemClock(TimeProvider timeProvider) : IClock
+{
+    public DateTimeOffset UtcNow => timeProvider.GetUtcNow();
+}

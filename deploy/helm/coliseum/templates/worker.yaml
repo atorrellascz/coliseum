@@ -1,0 +1,53 @@
+{{- $labels := dict "root" . "component" "worker" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "coliseum.fullname" . }}-worker
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  # Recreate: never two generations consuming at once; pending entries of the old pod are reclaimed by the new one.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "coliseum.selectorLabels" $labels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "coliseum.selectorLabels" $labels | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: {{ include "coliseum.fullname" . }}
+      terminationGracePeriodSeconds: 45   # > Worker ShutdownGrace (30 s): in-flight battles settle before SIGKILL
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "coliseum.image" (dict "root" . "name" .Values.image.worker) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            {{- include "coliseum.commonEnv" . | nindent 12 }}
+            - name: Worker__MaxConcurrency
+              value: {{ .Values.worker.maxConcurrency | quote }}
+            - name: Worker__ConsumerName
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+          {{- include "coliseum.probes" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

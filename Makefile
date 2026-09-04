@@ -3,7 +3,7 @@
 # the flag is forwarded to the test app, which rejects it with exit code 5 and reports "Zero tests ran".
 # STUB (MP-02): targets are declared; bodies are wired as each micro-project lands.
 
-.PHONY: build test test-unit test-integration run-api run-worker run-mcp compose-up compose-down smoke format pack
+.PHONY: docker-build helm-lint helm-up build test test-unit test-integration run-api run-worker run-mcp compose-up compose-down smoke format pack
 
 build:
 	dotnet build Coliseum.slnx -c Release
@@ -26,6 +26,11 @@ run-worker:
 run-mcp:
 	dotnet run --project src/Coliseum.Mcp
 
+docker-build:
+	docker build --target api -t coliseum-api:local .
+	docker build --target worker -t coliseum-worker:local .
+	docker build --target mcp -t coliseum-mcp:local .
+
 compose-up:
 	docker compose -f deploy/compose/docker-compose.yml up --build -d
 
@@ -37,6 +42,13 @@ smoke:
 
 format:
 	dotnet format Coliseum.slnx --verify-no-changes
+
+helm-lint:
+	helm lint deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml
+	helm template coliseum deploy/helm/coliseum >/dev/null
+
+helm-up:
+	KUBE_CONTEXT=${KUBE_CONTEXT:-docker-desktop} bash scripts/helm-up.sh
 
 pack:
 	dotnet pack src/Coliseum.Domain -c Release -o artifacts/nuget

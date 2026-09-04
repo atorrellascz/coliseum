@@ -1,2 +1,78 @@
-# STUB (MP-09): api (Deployment/Service/HPA/PDB), worker (1 replica, Recreate), mcp, redis (embedded StatefulSet or external endpoint),
-# secrets / ExternalSecret, NetworkPolicy, optional ServiceMonitor + PrometheusRule.
+# Default values. Override per environment with values-<env>.yaml.
+image:
+  registry: ""            # e.g. ghcr.io/atorrellas or 123456789012.dkr.ecr.eu-west-1.amazonaws.com
+  api: coliseum-api
+  worker: coliseum-worker
+  mcp: coliseum-mcp
+  tag: local
+  pullPolicy: IfNotPresent
+
+# Secrets: set here for dev, or reference an existing Secret (External Secrets Operator in AWS, see deploy/terraform).
+secrets:
+  existingSecret: ""      # when set, keys below are ignored; expected keys: signingKey, apiKey, mcpClientKey
+  signingKey: "helm-only-signing-key-change-me-0123456789"
+  apiKey: "dev-service-key"
+  mcpClientKey: "dev-mcp-key"
+
+redis:
+  embedded: true          # StatefulSet with a PVC; set false and fill external.url for ElastiCache
+  image: redis:7-alpine
+  storage: 1Gi
+  external:
+    url: ""               # host:port[,password=...]
+
+otel:
+  endpoint: ""            # e.g. http://otel-lgtm:4317; empty disables OTLP export (Prometheus scraping still works)
+
+api:
+  replicas: 2
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: "1", memory: 256Mi }
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  corsOrigins: []
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: false
+    className: nginx
+    host: coliseum.local
+    annotations: {}
+    tls: []
+
+worker:
+  replicas: 1             # one replica keeps strict global ordering (ADR-0006); scale after partitioning the stream
+  maxConcurrency: 8
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: "1", memory: 256Mi }
+
+mcp:
+  enabled: true
+  replicas: 1
+  resources:
+    requests: { cpu: 50m, memory: 96Mi }
+    limits: { cpu: 500m, memory: 192Mi }
+  service:
+    type: ClusterIP
+    port: 80
+
+monitoring:
+  serviceMonitor: false   # requires the Prometheus Operator CRDs
+  networkPolicy: true
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]

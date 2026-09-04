@@ -1,0 +1,75 @@
+{{- if .Values.mcp.enabled }}
+{{- $labels := dict "root" . "component" "mcp" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "coliseum.fullname" . }}-mcp
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+spec:
+  replicas: {{ .Values.mcp.replicas }}
+  selector:
+    matchLabels:
+      {{- include "coliseum.selectorLabels" $labels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "coliseum.selectorLabels" $labels | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "coliseum.fullname" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mcp
+          image: {{ include "coliseum.image" (dict "root" . "name" .Values.image.mcp) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: Mcp__ApiBaseUrl
+              value: http://{{ include "coliseum.fullname" . }}-api:{{ .Values.api.service.port }}
+            - name: Mcp__ApiKey
+              valueFrom: { secretKeyRef: { name: {{ include "coliseum.secretName" . }}, key: apiKey } }
+            - name: Mcp__ClientApiKey
+              valueFrom: { secretKeyRef: { name: {{ include "coliseum.secretName" . }}, key: mcpClientKey } }
+            {{- if .Values.otel.endpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.otel.endpoint | quote }}
+            {{- end }}
+          livenessProbe:
+            httpGet: { path: /healthz/live, port: http }
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /healthz/live, port: http }
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.mcp.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "coliseum.fullname" . }}-mcp
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mcp
+spec:
+  type: {{ .Values.mcp.service.type }}
+  selector:
+    {{- include "coliseum.selectorLabels" $labels | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.mcp.service.port }}
+      targetPort: http
+{{- end }}

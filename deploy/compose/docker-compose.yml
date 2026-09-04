@@ -1,3 +1,103 @@
-# STUB (MP-09). Services: redis (appendonly, noeviction), api:8080, worker:8081, mcp:8082, grafana/otel-lgtm:3000/4317.
+# Local full stack: Redis, API, worker, MCP server and Grafana (otel-lgtm: Grafana + Prometheus + Loki + Tempo).
+#   docker compose -f deploy/compose/docker-compose.yml up --build -d
+#   API_URL=http://localhost:8080 API_KEY=dev-service-key bash scripts/smoke.sh
+#   Grafana: http://localhost:3000 (admin / admin)   API docs: http://localhost:8080/scalar
+# Secrets below are compose-only defaults; override with environment variables or a .env file next to this compose file.
 name: coliseum
-services: {}
+
+x-host-defaults: &host-defaults
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  environment: &host-environment
+    ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    REDIS_URL: redis:6379
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4317
+    OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+    Logging__LogLevel__Default: Information
+
+services:
+  redis:
+    image: redis:7-alpine
+    # noeviction: evicting a battle record would break settlement idempotency (SUP-10); AOF keeps the stream across restarts.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    <<: *host-defaults
+    build:
+      context: ../..
+      target: api
+    image: coliseum-api:local
+    environment:
+      <<: *host-environment
+      Auth__SigningKey: ${COLISEUM_SIGNING_KEY:-compose-only-signing-key-change-me-0123456789}
+      Auth__ApiKeys__0: ${COLISEUM_API_KEY:-dev-service-key}
+      Cors__Origins__0: http://localhost:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      otel-lgtm:
+        condition: service_started
+
+  worker:
+    <<: *host-defaults
+    build:
+      context: ../..
+      target: worker
+    image: coliseum-worker:local
+    environment:
+      <<: *host-environment
+      Worker__MaxConcurrency: ${COLISEUM_WORKER_CONCURRENCY:-8}
+    ports:
+      - "8081:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      otel-lgtm:
+        condition: service_started
+
+  mcp:
+    <<: *host-defaults
+    build:
+      context: ../..
+      target: mcp
+    image: coliseum-mcp:local
+    environment:
+      <<: *host-environment
+      Mcp__ApiBaseUrl: http://api:8080
+      Mcp__ApiKey: ${COLISEUM_API_KEY:-dev-service-key}
+      Mcp__ClientApiKey: ${COLISEUM_MCP_CLIENT_KEY:-dev-mcp-key}
+    ports:
+      - "8082:8080"
+    depends_on:
+      api:
+        condition: service_started
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./grafana/dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/coliseum.yaml:ro
+      - ./grafana/coliseum.json:/otel-lgtm/grafana/dashboards/coliseum.json:ro
+    environment:
+      ENABLE_LOGS_ALL: "true"
+
+volumes:
+  redis-data:

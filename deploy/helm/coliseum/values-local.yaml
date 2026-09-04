@@ -1,0 +1,17 @@
+# Docker Desktop / k3d: local images, one API replica, no autoscaling, NodePort access.
+image:
+  tag: local
+  pullPolicy: Never
+api:
+  replicas: 1
+  autoscaling:
+    enabled: false
+  service:
+    type: NodePort
+worker:
+  maxConcurrency: 4
+mcp:
+  service:
+    type: NodePort
+redis:
+  storage: 256Mi

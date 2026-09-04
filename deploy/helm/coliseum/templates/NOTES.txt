@@ -1,0 +1,13 @@
+Coliseum {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}".
+
+API service:    {{ include "coliseum.fullname" . }}-api ({{ .Values.api.service.type }}, port {{ .Values.api.service.port }})
+{{- if .Values.mcp.enabled }}
+MCP service:    {{ include "coliseum.fullname" . }}-mcp ({{ .Values.mcp.service.type }}, port {{ .Values.mcp.service.port }})
+{{- end }}
+Redis:          {{ include "coliseum.redisUrl" . }}
+
+Try it:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "coliseum.fullname" . }}-api 8080:{{ .Values.api.service.port }}
+  API_URL=http://localhost:8080 API_KEY=<secrets.apiKey> bash scripts/smoke.sh
+
+Docs: http://localhost:8080/scalar   Metrics: /metrics on every pod (port 8080).

@@ -2,8 +2,8 @@
 
 Backend service + battle engine for the "Backend Development Hands-on Test".
 
-> Status: **MP-06b done**: the full spec runs end to end (API, worker, Redis, MCP server; 146 tests green, smoke script OK).
-> Next: Docker Compose + Helm (MP-09), live events (MP-07), back-office (MP-08).
+> Status: **MP-09 done**: `docker compose up` runs the whole stack (API, worker, Redis, MCP, Grafana) and the Helm chart is verified on a local Kubernetes; 146 tests green.
+> Next: live events + auto-play client (MP-07), CI (MP-10), back-office (MP-08).
 > Progress board: `docs/TASKS.md`. Step-by-step log: `docs/DEVLOG.md`.
 
 ## Stack
@@ -31,6 +31,16 @@ Dependency rule: arrows point inward (hosts → infrastructure → application �
 
 ## Quick start
 
+Fastest path (Docker only):
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml up --build -d
+API_URL=http://localhost:8080 API_KEY=dev-service-key bash scripts/smoke.sh
+# Grafana http://localhost:3000 (admin/admin) · API docs http://localhost:8080/scalar · MCP http://localhost:8082/mcp
+```
+
+From source:
+
 ```bash
 docker run -d --name redis -p 6379:6379 redis:7-alpine --appendonly yes --maxmemory-policy noeviction
 dotnet build Coliseum.slnx
@@ -54,6 +64,7 @@ Interactive API docs: http://localhost:8080/scalar. Full stack with Compose and 
 - `docs/redis-data-model.md` — every key, script and operational setting
 - `docs/api.md` — endpoints with curl examples
 - `docs/mcp.md` — MCP tools, transports and client configuration
+- `docs/deploy.md` — Compose, images, Helm chart; `docs/local-kubernetes.md` — Docker Desktop / k3d
 - `docs/TASKS.md` — progress board
 - `docs/adr/` — architecture decision records
 - `docs/DEVLOG.md` — build log, one entry per step

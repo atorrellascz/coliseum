@@ -16,7 +16,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-06b | MCP server (tools over the API + local simulation) | [x] code done, review pending | see DEVLOG |
 | MP-07 | SignalR hub + arena auto-play client | [ ] | |
 | MP-08 | Back-office (RED / USE / economy) + admin stats | [ ] | |
-| MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [ ] | |
+| MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending (k3d script only, not measured) | see DEVLOG |
 | MP-10 | GitHub Actions CI + release | [ ] | |
 | MP-11 | Argo CD + Rollouts canary | [ ] | |
 | MP-12 | Final docs, video, tag v1.0.0 | [ ] | |
@@ -143,6 +143,22 @@ Verification for MP-05 / MP-06 / MP-06b DoD
 - [x] Live run: Redis container + API + Worker + MCP, `scripts/smoke.sh` OK, MCP initialize handshake OK (see DEVLOG)
 - [ ] User reviewed every file above
 - [x] Docs: architecture.md (SDD), redis-data-model.md, api.md, mcp.md, ADR-0016
+
+## MP-09 checklist (review one by one)
+
+- [x] Dockerfile — multi-stage, cached restore layer, three targets on `aspnet:10.0-noble-chiseled`, non-root
+- [x] deploy/compose/docker-compose.yml — redis (AOF, noeviction), api, worker, mcp, grafana/otel-lgtm; read-only containers
+- [x] deploy/compose/grafana/dashboards.yaml, coliseum.json — RED / USE / economy dashboard provisioned
+- [x] deploy/helm/coliseum — Chart.yaml, values.yaml, values-local.yaml, templates: _helpers, api (Deployment/Service/PDB/HPA/Ingress), worker, mcp, redis (StatefulSet), secret, serviceaccount, networkpolicy, servicemonitor (+ PrometheusRule), NOTES
+- [x] scripts/helm-up.sh, scripts/k3d-up.sh; Makefile targets docker-build / compose-up / helm-lint / helm-up
+- [x] docs/deploy.md, docs/local-kubernetes.md
+
+Verification for MP-09 DoD
+- [x] `docker compose up --build` from scratch: 266 s; `scripts/smoke.sh` OK; MCP initialize 200; metrics in Prometheus via OTLP; dashboard provisioned
+- [x] `helm lint` clean; `helm template` renders 12 resources
+- [x] `KUBE_CONTEXT=docker-desktop bash scripts/helm-up.sh`: 4/4 pods Running, smoke OK, 49 s
+- [ ] k3d: script written, not run (k3d not installed on this machine)
+- [ ] User reviewed every file above
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

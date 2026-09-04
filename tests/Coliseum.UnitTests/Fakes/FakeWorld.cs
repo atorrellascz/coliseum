@@ -58,7 +58,9 @@ internal sealed class FakeWorld
 
     public GetLeaderboardHandler GetLeaderboard => new(Leaderboard);
 
-    public ProcessBattleHandler ProcessBattle => new(Players, Reports, Ledger, Events, Rules, Clock, NullLogger<ProcessBattleHandler>.Instance);
+    public ListPlayersHandler ListPlayers => new(Players);
+
+    public ProcessBattleHandler ProcessBattle => new(Players, Reports, Ledger, Leaderboard, Events, Rules, Clock, NullLogger<ProcessBattleHandler>.Instance);
 
     public Player Seed(string id, int attack = 70, int defense = 30, int hitPoints = 100, long gold = 500, long silver = 120)
     {

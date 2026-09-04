@@ -73,6 +73,18 @@ public sealed class RedisPlayerRepository(IConnectionMultiplexer redis, RedisKey
         return found;
     }
 
+    public async Task<IReadOnlyList<Player>> ListRecentAsync(int limit, CancellationToken cancellationToken)
+    {
+        // players:index is scored by creation time: the newest players are at the top of the descending range.
+        var ids = await redis.GetDatabase()
+            .SortedSetRangeByRankAsync(keys.PlayersIndex, 0, limit - 1, Order.Descending)
+            .WaitAsync(cancellationToken);
+
+        var ordered = ids.Select(id => PlayerId.Unchecked((string)id!)).ToList();
+        var found = await GetManyAsync(ordered, cancellationToken);
+        return ordered.Where(found.ContainsKey).Select(id => found[id]).ToList();
+    }
+
     /// <summary>Storage is trusted: values were validated when written, so no re-validation (Player.Rehydrate).</summary>
     private static Player Rehydrate(HashEntry[] entries)
     {

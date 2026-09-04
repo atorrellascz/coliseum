@@ -28,16 +28,24 @@ public enum ProcessOutcome
 /// The worker's unit of work: load players, run the deterministic engine, settle atomically, publish, measure.
 /// Infrastructure exceptions (Redis unreachable) are intentionally not caught here: the worker retries and
 /// dead-letters after a delivery threshold, and the settlement's idempotency makes retries safe.
+/// Live events are published only after the settlement succeeded, so clients never see a battle that did not count.
 /// </summary>
 public sealed partial class ProcessBattleHandler(
     IPlayerRepository players,
     IBattleReportStore reports,
     IBattleLedger ledger,
+    ILeaderboard leaderboard,
     IEventPublisher events,
     BattleRules rules,
     IClock clock,
     ILogger<ProcessBattleHandler> logger)
 {
+    /// <summary>Turn-by-turn events are published for battles up to this length; longer ones only get the summary.</summary>
+    public const int MaxTurnEvents = 100;
+
+    /// <summary>Size of the leaderboard snapshot pushed to live clients after each settlement.</summary>
+    public const int LeaderboardSnapshotSize = 10;
+
     public async Task<ProcessOutcome> HandleAsync(QueuedBattle message, CancellationToken cancellationToken)
     {
         using var activity = ColiseumTelemetry.ActivitySource.StartActivity("battle.process");
@@ -47,7 +55,7 @@ public sealed partial class ProcessBattleHandler(
         var existing = await reports.GetAsync(message.BattleId, cancellationToken);
         if (existing is { Status: BattleStatus.Done })
         {
-            return Finish(ProcessOutcome.Duplicate, message, started);
+            return Finish(ProcessOutcome.Duplicate, started);
         }
 
         await reports.MarkProcessingAsync(message.BattleId, cancellationToken);
@@ -70,7 +78,7 @@ public sealed partial class ProcessBattleHandler(
         switch (settlement.Outcome)
         {
             case SettlementOutcome.AlreadyApplied:
-                return Finish(ProcessOutcome.Duplicate, message, started);
+                return Finish(ProcessOutcome.Duplicate, started);
             case SettlementOutcome.PlayerMissing:
                 return await FailAsync(ProcessOutcome.PlayerMissing, message, "player_missing", started, cancellationToken);
             case SettlementOutcome.Applied:
@@ -87,6 +95,24 @@ public sealed partial class ProcessBattleHandler(
 
         LogBattleDone(logger, report.BattleId.Value, report.WinnerId.Value, report.LoserId.Value, report.Turns, settlement.Score);
 
+        await PublishAsync(report, settlement, now, cancellationToken);
+
+        return Finish(ProcessOutcome.Processed, started);
+    }
+
+    /// <summary>Turns (bounded), then the outcome, then the leaderboard snapshot: clients animate in that order.</summary>
+    private async Task PublishAsync(BattleReport report, SettlementResult settlement, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        if (report.Turns <= MaxTurnEvents)
+        {
+            foreach (var turn in report.Events)
+            {
+                await events.PublishAsync(
+                    new BattleTurnEvent(now, report.BattleId.Value, turn.Turn, turn.AttackerId.Value, turn.DefenderId.Value, turn.Hit, turn.Damage, turn.DefenderHpAfter),
+                    cancellationToken);
+            }
+        }
+
         await events.PublishAsync(
             new BattleDoneEvent(
                 now,
@@ -102,7 +128,8 @@ public sealed partial class ProcessBattleHandler(
                 settlement.Score),
             cancellationToken);
 
-        return Finish(ProcessOutcome.Processed, message, started);
+        var top = await leaderboard.GetTopAsync(0, LeaderboardSnapshotSize, cancellationToken);
+        await events.PublishAsync(new LeaderboardChangedEvent(now, top), cancellationToken);
     }
 
     private async Task<ProcessOutcome> FailAsync(ProcessOutcome outcome, QueuedBattle message, string error, long started, CancellationToken cancellationToken)
@@ -111,15 +138,14 @@ public sealed partial class ProcessBattleHandler(
         await reports.MarkFailedAsync(message.BattleId, error, now, cancellationToken);
         LogBattleFailed(logger, message.BattleId.Value, error);
         await events.PublishAsync(new BattleFailedEvent(now, message.BattleId.Value, message.AttackerId.Value, message.DefenderId.Value, error), cancellationToken);
-        return Finish(outcome, message, started);
+        return Finish(outcome, started);
     }
 
-    private static ProcessOutcome Finish(ProcessOutcome outcome, QueuedBattle message, long started)
+    private static ProcessOutcome Finish(ProcessOutcome outcome, long started)
     {
         ColiseumTelemetry.BattlesProcessed.Add(1, ColiseumTelemetry.ResultTag(outcome));
         ColiseumTelemetry.ProcessingDuration.Record(Stopwatch.GetElapsedTime(started).TotalSeconds);
         Activity.Current?.SetTag("battle.outcome", outcome.ToString());
-        _ = message;
         return outcome;
     }
 

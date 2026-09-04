@@ -40,6 +40,20 @@ public static class AuthPolicies
             .Configure<IOptions<AuthOptions>>((jwt, auth) =>
             {
                 jwt.MapInboundClaims = false; // keep "sub" and "role" as issued, no legacy SOAP claim names
+                jwt.Events = new JwtBearerEvents
+                {
+                    // Browsers cannot set headers on WebSocket upgrades: SignalR sends the token as ?access_token=.
+                    OnMessageReceived = context =>
+                    {
+                        string? token = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(token) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = token;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                };
                 jwt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

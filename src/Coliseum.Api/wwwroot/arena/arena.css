@@ -1,0 +1,40 @@
+:root { --bg: #14161b; --card: #1e2129; --text: #e8e8ea; --muted: #9aa0ab; --accent: #f2b134; --hp: #3fb950; --hurt: #f85149; --line: #2c303a; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+header { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1.2rem; border-bottom: 1px solid var(--line); }
+h1 { font-size: 1.2rem; margin: 0; letter-spacing: .04em; }
+h2 { font-size: 1rem; margin: 0 0 .6rem; }
+h3 { font-size: .9rem; margin: 0 0 .5rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.pill { font-size: .75rem; padding: .15rem .6rem; border-radius: 1rem; background: #3a3f4b; }
+.pill.online { background: #1f5130; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: .6rem; padding: 1rem; }
+#setup { max-width: 34rem; margin: 2rem auto; display: grid; gap: .6rem; }
+label { display: flex; flex-direction: column; gap: .2rem; font-size: .85rem; color: var(--muted); }
+input, select { background: #0f1115; color: var(--text); border: 1px solid var(--line); border-radius: .35rem; padding: .4rem .5rem; font-size: .95rem; }
+input.short { width: 5.5rem; display: inline-block; }
+.row { display: flex; gap: .6rem; }
+.row label { flex: 1; }
+button { background: #2c303a; color: var(--text); border: 1px solid var(--line); border-radius: .35rem; padding: .5rem .9rem; cursor: pointer; }
+button.primary, #enter { background: var(--accent); color: #111; font-weight: 600; border-color: transparent; }
+button:disabled { opacity: .5; cursor: default; }
+.error { color: var(--hurt); }
+.muted { color: var(--muted); font-size: .85rem; }
+main { max-width: 64rem; margin: 1rem auto; padding: 0 1rem; display: grid; gap: 1rem; }
+.fighters { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; }
+.versus { font-weight: 800; color: var(--accent); font-size: 1.4rem; }
+.fighter.hit { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.bar { height: .9rem; background: #0f1115; border-radius: .45rem; overflow: hidden; margin: .4rem 0; }
+.hp { height: 100%; background: var(--hp); transition: width .25s ease; }
+.hp.low { background: var(--hurt); }
+.stats, .wealth { font-size: .85rem; color: var(--muted); display: flex; gap: .8rem; }
+.controls { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; }
+.controls label { flex: 1; min-width: 12rem; }
+.toggle { flex-direction: row; align-items: center; gap: .4rem; }
+.columns { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+.log { margin: 0; padding-left: 1.2rem; max-height: 22rem; overflow-y: auto; font-size: .85rem; line-height: 1.5; }
+.log .win { color: var(--hp); } .log .loss { color: var(--hurt); } .log .info { color: var(--muted); }
+.board { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.board th, .board td { text-align: left; padding: .25rem .3rem; border-bottom: 1px solid var(--line); }
+.board tr.me { color: var(--accent); }
+@media (max-width: 40rem) { .fighters, .columns { grid-template-columns: 1fr; } .versus { text-align: center; } }

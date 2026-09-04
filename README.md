@@ -1,9 +1,11 @@
 # Coliseum
 
+[![ci](https://github.com/atorrellascz/coliseum/actions/workflows/ci.yml/badge.svg)](https://github.com/atorrellascz/coliseum/actions/workflows/ci.yml)
+
 Backend service + battle engine for the "Backend Development Hands-on Test".
 
-> Status: **MP-09 done**: `docker compose up` runs the whole stack (API, worker, Redis, MCP, Grafana) and the Helm chart is verified on a local Kubernetes; 146 tests green.
-> Next: live events + auto-play client (MP-07), CI (MP-10), back-office (MP-08).
+> Status: **MP-10 done**: full stack on Compose and Helm, live battles over SignalR with an auto-play arena client; 152 tests green.
+> Next: back-office (MP-08), Terraform (MP-01), Argo CD (MP-11), final docs and video (MP-12).
 > Progress board: `docs/TASKS.md`. Step-by-step log: `docs/DEVLOG.md`.
 
 ## Stack
@@ -65,6 +67,8 @@ Interactive API docs: http://localhost:8080/scalar. Full stack with Compose and 
 - `docs/api.md` — endpoints with curl examples
 - `docs/mcp.md` — MCP tools, transports and client configuration
 - `docs/deploy.md` — Compose, images, Helm chart; `docs/local-kubernetes.md` — Docker Desktop / k3d
+- `docs/live-events.md` — SignalR hub, event contract, arena auto-play client
+- `docs/ci.md` — GitHub Actions pipeline and release process
 - `docs/TASKS.md` — progress board
 - `docs/adr/` — architecture decision records
 - `docs/DEVLOG.md` — build log, one entry per step

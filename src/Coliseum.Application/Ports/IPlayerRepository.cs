@@ -15,4 +15,7 @@ public interface IPlayerRepository
 
     /// <summary>Batch read in one round trip. Missing ids are simply absent from the result.</summary>
     Task<IReadOnlyDictionary<PlayerId, Player>> GetManyAsync(IReadOnlyCollection<PlayerId> ids, CancellationToken cancellationToken);
+
+    /// <summary>Most recently created players first. Used for opponent discovery by clients; not a general query API.</summary>
+    Task<IReadOnlyList<Player>> ListRecentAsync(int limit, CancellationToken cancellationToken);
 }

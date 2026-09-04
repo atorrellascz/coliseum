@@ -1,12 +1,107 @@
-# STUB (MP-10). Planned jobs: restore/build -> unit + regression tests -> integration tests (services: redis:7)
-# -> dotnet format --verify-no-changes -> docker build (sbom, provenance) -> trivy -> helm lint + kubeconform -> terraform validate.
+# Continuous integration (MP-10). Runs on every push to main and on pull requests.
+# Jobs: build + unit/regression tests, integration tests against a Redis service container, formatting,
+# container images with Trivy scan, Helm lint + kubeconform. Terraform validate joins in MP-01.
 name: ci
+
 on:
   push:
     branches: [main]
+    tags-ignore: ["v*"]
   pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+
 jobs:
-  placeholder:
+  build-test:
+    name: Build, unit and regression tests
     runs-on: ubuntu-latest
     steps:
-      - run: echo "CI pipeline is defined in MP-10"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restore
+        run: dotnet restore Coliseum.slnx
+      - name: Build (warnings are errors)
+        run: dotnet build Coliseum.slnx --no-restore -c Release
+      - name: Format check
+        run: dotnet format Coliseum.slnx --verify-no-changes --no-restore
+      - name: Unit tests
+        run: dotnet test --project tests/Coliseum.UnitTests --no-build -c Release
+      - name: Regression (golden) tests
+        run: dotnet test --project tests/Coliseum.RegressionTests --no-build -c Release
+
+  integration:
+    name: Integration tests (real Redis)
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      REDIS_URL: localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build
+        run: dotnet build tests/Coliseum.IntegrationTests -c Release
+      - name: Integration tests
+        run: dotnet test --project tests/Coliseum.IntegrationTests --no-build -c Release
+
+  images:
+    name: Container images + Trivy
+    runs-on: ubuntu-latest
+    needs: [build-test]
+    strategy:
+      matrix:
+        target: [api, worker, mcp]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build ${{ matrix.target }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          tags: coliseum-${{ matrix.target }}:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Trivy scan (fail on HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: coliseum-${{ matrix.target }}:ci
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+
+  helm:
+    name: Helm lint + kubeconform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: helm lint
+        run: |
+          helm lint deploy/helm/coliseum
+          helm lint deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml
+      - name: kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          helm template coliseum deploy/helm/coliseum | ./kubeconform -strict -summary -ignore-missing-schemas
+          helm template coliseum deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml | ./kubeconform -strict -summary -ignore-missing-schemas

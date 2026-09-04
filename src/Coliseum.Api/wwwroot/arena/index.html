@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coliseum Arena</title>
+  <link rel="stylesheet" href="arena.css">
+</head>
+<body>
+  <!--
+    Auto-play arena client (MP-07). Vanilla JS + @microsoft/signalr from a CDN, no build step.
+    Open two windows: /arena/?name=Ata&auto=1 and /arena/?name=Bot&auto=1 and watch them fight.
+    Query parameters: name, auto (1/0), interval (ms between auto battles), apiKey (dev only).
+  -->
+  <header>
+    <h1>Coliseum Arena</h1>
+    <span id="connection" class="pill">offline</span>
+  </header>
+
+  <section id="setup" class="card">
+    <h2>Enter the arena</h2>
+    <p class="muted">A service API key creates your player; from then on this window acts with the player's own token.</p>
+    <label>Service API key <input id="apiKey" value="dev-service-key" autocomplete="off"></label>
+    <label>Name <input id="name" maxlength="20" placeholder="max 20 chars"></label>
+    <div class="row">
+      <label>Attack <input id="attack" type="number" min="1" max="10000" value="70"></label>
+      <label>Defense <input id="defense" type="number" min="0" max="10000" value="30"></label>
+      <label>Hit points <input id="hitPoints" type="number" min="1" max="10000" value="100"></label>
+    </div>
+    <div class="row">
+      <label>Gold <input id="gold" type="number" min="0" max="1000000000" value="5000"></label>
+      <label>Silver <input id="silver" type="number" min="0" max="1000000000" value="1200"></label>
+    </div>
+    <button id="enter">Create player and enter</button>
+    <p id="setupError" class="error" hidden></p>
+  </section>
+
+  <main id="arena" hidden>
+    <section class="fighters">
+      <div class="card fighter" id="me">
+        <h2 id="meName">me</h2>
+        <div class="bar"><div class="hp" id="meHp" style="width:100%"></div></div>
+        <div class="stats" id="meStats"></div>
+        <div class="wealth" id="meWealth"></div>
+      </div>
+      <div class="versus">VS</div>
+      <div class="card fighter" id="opponent">
+        <h2 id="oppName">choose an opponent</h2>
+        <div class="bar"><div class="hp" id="oppHp" style="width:100%"></div></div>
+        <div class="stats" id="oppStats"></div>
+        <div class="wealth" id="oppWealth"></div>
+      </div>
+    </section>
+
+    <section class="card controls">
+      <label>Opponent
+        <select id="opponents"></select>
+      </label>
+      <button id="refreshOpponents" title="Reload the player list">Refresh</button>
+      <button id="fight" class="primary">Fight</button>
+      <label class="toggle"><input id="auto" type="checkbox"> Auto-play every <input id="interval" type="number" min="1000" step="500" value="3000" class="short"> ms</label>
+    </section>
+
+    <section class="columns">
+      <div class="card">
+        <h3>Battle log</h3>
+        <ol id="log" class="log"></ol>
+      </div>
+      <div class="card">
+        <h3>Leaderboard</h3>
+        <table class="board"><thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead><tbody id="board"></tbody></table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  <script src="arena.js"></script>
+</body>
+</html>

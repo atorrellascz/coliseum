@@ -26,6 +26,10 @@ curl -s -X POST $API/players -H "Authorization: Bearer $TOKEN" -H "Content-Type:
 Response: `{ "player": {...}, "accessToken": "<player token>", "expiresAt": "..." }`.
 400 with every violated rule; 409 when the name is taken (case-insensitive).
 
+### `GET /players?limit=50` → 200
+
+Recent players, newest first (opponent discovery for clients and agents). `limit` ≤ 100.
+
 ### `GET /players/{id}` → 200 / 404
 
 ### `POST /battles` (player or service) → 202
@@ -66,3 +70,15 @@ Non-participants receive 404, not 403.
 - 100 requests per 10 s per token (or IP when anonymous): 429 with `Retry-After`.
 - Request bodies up to 64 KB.
 - Ids must match `[A-Za-z0-9_-]{1,64}`.
+
+## Live events: `/hubs/arena` (SignalR)
+
+Connect with the same JWT as `?access_token=`. Players automatically receive their own battles; service tokens can
+`JoinBackOffice()` or `WatchPlayer(id)`. The server pushes `arenaEvent(json)` where `json` is an `ArenaEvent`:
+
+```json
+{ "type": "battle.turn", "occurredAt": "...", "battleId": "...", "turn": 3, "attackerId": "...", "defenderId": "...", "hit": true, "damage": 63, "defenderHpAfter": 37 }
+{ "type": "battle.done", "battleId": "...", "winnerId": "...", "loserId": "...", "turns": 7, "lootPercent": 7, "goldStolen": 35, "silverStolen": 9, "score": 44 }
+{ "type": "leaderboard.changed", "top": [ { "rank": 1, "score": 44, "playerId": "..." } ] }
+```
+See `docs/live-events.md`.

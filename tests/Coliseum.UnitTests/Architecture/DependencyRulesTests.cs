@@ -9,7 +9,7 @@ namespace Coliseum.UnitTests.Architecture;
 /// </summary>
 public class DependencyRulesTests
 {
-    private static readonly string RepoRoot = FindRepoRoot();
+    internal static readonly string RepoRoot = FindRepoRoot();
 
     [Theory]
     [InlineData("Coliseum.Domain")]

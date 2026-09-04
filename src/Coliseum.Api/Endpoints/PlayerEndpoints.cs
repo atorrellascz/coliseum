@@ -21,6 +21,13 @@ public static class PlayerEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapGet("/", async (int? limit, ListPlayersHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(limit, cancellationToken)).ToResult(Results.Ok))
+            .RequireAuthorization(AuthPolicies.PlayerOrService)
+            .WithSummary("Recent players, newest first (opponent discovery)")
+            .Produces<IReadOnlyList<PlayerResponse>>()
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
         group.MapGet("/{id}", async (string id, GetPlayerHandler handler, CancellationToken cancellationToken) =>
                 (await handler.HandleAsync(id, cancellationToken)).ToResult(Results.Ok))
             .RequireAuthorization(AuthPolicies.PlayerOrService)

@@ -23,6 +23,7 @@ public static class DependencyInjection
 
         services.TryAddScoped<CreatePlayerHandler>();
         services.TryAddScoped<GetPlayerHandler>();
+        services.TryAddScoped<ListPlayersHandler>();
         services.TryAddScoped<SubmitBattleHandler>();
         services.TryAddScoped<GetBattleHandler>();
         services.TryAddScoped<GetLeaderboardHandler>();

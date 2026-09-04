@@ -14,10 +14,10 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-05 | Redis adapters, Lua scripts, integration tests (Testcontainers) | [x] code done, review pending | see DEVLOG |
 | MP-06 | API + Worker hosts, ServiceDefaults, auth, smoke script | [x] code done, review pending | see DEVLOG |
 | MP-06b | MCP server (tools over the API + local simulation) | [x] code done, review pending | see DEVLOG |
-| MP-07 | SignalR hub + arena auto-play client | [ ] | |
+| MP-07 | SignalR hub + arena auto-play client | [x] code done, review pending | see DEVLOG |
 | MP-08 | Back-office (RED / USE / economy) + admin stats | [ ] | |
-| MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending (k3d script only, not measured) | see DEVLOG |
-| MP-10 | GitHub Actions CI + release | [ ] | |
+| MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
+| MP-10 | GitHub Actions CI + release | [x] workflows pushed, first run pending verification | see DEVLOG |
 | MP-11 | Argo CD + Rollouts canary | [ ] | |
 | MP-12 | Final docs, video, tag v1.0.0 | [ ] | |
 
@@ -157,8 +157,33 @@ Verification for MP-09 DoD
 - [x] `docker compose up --build` from scratch: 266 s; `scripts/smoke.sh` OK; MCP initialize 200; metrics in Prometheus via OTLP; dashboard provisioned
 - [x] `helm lint` clean; `helm template` renders 12 resources
 - [x] `KUBE_CONTEXT=docker-desktop bash scripts/helm-up.sh`: 4/4 pods Running, smoke OK, 49 s
-- [ ] k3d: script written, not run (k3d not installed on this machine)
+- [x] k3d v5.9.0: `scripts/k3d-up.sh` → cluster in 116 s, helm install 49 s, 4/4 pods on 3 nodes, smoke OK (docs/local-kubernetes.md)
+- [x] Program.cs of the three hosts reduced to composition-only scripts (`HostingExtensions`), guarded by `HostCompositionRulesTests`
 - [ ] User reviewed every file above
+
+## MP-07 checklist (review one by one)
+
+- [x] Api/Hubs/ArenaHub.cs — auto-join own player group from the token; JoinBackOffice / WatchPlayer for service tokens
+- [x] Api/Hubs/ArenaEventRelay.cs — Redis pub/sub → SignalR groups, raw JSON forwarded; no backplane (ADR-0010 rewritten)
+- [x] Api/Auth/AuthPolicies.cs — JWT from `?access_token=` for `/hubs/*`; Api/Program.cs — AddSignalR, MapHub, relay hosted service
+- [x] Application: `IPlayerRepository.ListRecentAsync`, `ListPlayersHandler` (+ `GET /players?limit=`), `ProcessBattleHandler` publishes turns (≤ 100), done, leaderboard snapshot
+- [x] Infrastructure: `RedisPlayerRepository.ListRecentAsync` (players:index)
+- [x] src/Coliseum.Api/wwwroot/arena/index.html, arena.js, arena.css — two windows = two players; auto-play; HP bars animated from turn events
+- [x] Tests: ListPlayersHandlerTests, ProcessBattleHandler turn/leaderboard events, IntegrationTests/Api/ArenaHubTests (hub end to end through worker + Redis; anonymous rejected)
+- [x] Package change: SignalR Redis backplane removed, SignalR.Client added for tests
+
+Verification for MP-07 DoD
+- [x] Solution build 0 warnings; UnitTests 107, RegressionTests 10, IntegrationTests 35
+- [x] Hosts from source: `/arena/` served, smoke OK, hub negotiate 200 with token / 401 without, relay subscribed
+- [ ] Two browser windows auto-playing for 5 minutes (manual check by the user; see docs/live-events.md)
+- [ ] User reviewed every file above
+
+## MP-10 checklist
+
+- [x] .github/workflows/ci.yml — build + format + unit/regression; integration with a redis service container; images (matrix) + Trivy; helm lint + kubeconform
+- [x] .github/workflows/release.yml — GHCR images with SBOM/provenance, NuGet packages to GitHub Packages, Helm chart as OCI
+- [x] docs/ci.md; README badge
+- [ ] First CI run green on GitHub (verify after push)
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

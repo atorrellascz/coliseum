@@ -25,7 +25,6 @@ RUN dotnet restore src/Coliseum.Api/Coliseum.Api.csproj \
 # Sources (tests, docs and private notes are excluded by .dockerignore).
 COPY .editorconfig ./
 COPY src/ src/
-COPY clients/ clients/
 
 ARG CONFIGURATION=Release
 RUN dotnet publish src/Coliseum.Api/Coliseum.Api.csproj       -c $CONFIGURATION -o /out/api    --no-restore \

@@ -32,6 +32,12 @@ internal sealed class InMemoryPlayerRepository(List<string>? log = null) : IPlay
         return Task.FromResult(found);
     }
 
+    public Task<IReadOnlyList<Player>> ListRecentAsync(int limit, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<Player> recent = _players.Values.OrderByDescending(p => p.CreatedAt).ThenByDescending(p => p.Id.Value, StringComparer.Ordinal).Take(limit).ToList();
+        return Task.FromResult(recent);
+    }
+
     /// <summary>Test seam: store a player without going through Create (no uniqueness bookkeeping needed for ids).</summary>
     public void Seed(Player player)
     {

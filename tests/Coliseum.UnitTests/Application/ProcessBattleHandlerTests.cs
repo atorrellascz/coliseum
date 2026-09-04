@@ -39,6 +39,28 @@ public class ProcessBattleHandlerTests
         var done = world.Events.Single<BattleDoneEvent>();
         done.Score.ShouldBe(record.Settlement.Score);
         done.WinnerId.ShouldBe(record.Report.WinnerId.Value);
+
+        // Live feed: every turn, then the outcome, then the leaderboard snapshot.
+        var turns = world.Events.Events.OfType<BattleTurnEvent>().ToList();
+        turns.Count.ShouldBe(record.Report.Turns);
+        turns.Select(t => t.Turn).ShouldBe(Enumerable.Range(1, record.Report.Turns));
+        world.Events.Events.Select(e => e.GetType().Name).TakeLast(2).ShouldBe([nameof(BattleDoneEvent), nameof(LeaderboardChangedEvent)]);
+        world.Events.Single<LeaderboardChangedEvent>().Top.Single().PlayerId.ShouldBe(record.Report.WinnerId.Value);
+    }
+
+    [Fact]
+    public async Task Very_long_battles_publish_only_the_outcome()
+    {
+        var world = new FakeWorld();
+        var ata = world.Seed("ata", attack: 1, defense: 10_000, hitPoints: 400);
+        var bot = world.Seed("bot", attack: 1, defense: 10_000, hitPoints: 400);
+        var message = await Queue(world, ata.Id, bot.Id);
+
+        await world.ProcessBattle.HandleAsync(message, _ct);
+
+        world.Reports.All[message.BattleId].Report!.Turns.ShouldBeGreaterThan(ProcessBattleHandler.MaxTurnEvents);
+        world.Events.Events.OfType<BattleTurnEvent>().ShouldBeEmpty();
+        world.Events.Single<BattleDoneEvent>();
     }
 
     [Fact]

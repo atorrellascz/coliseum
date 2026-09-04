@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <!--
     HTTP host: Minimal APIs, JWT auth + API-key exchange, rate limiting, ProblemDetails,
-    OpenAPI + Scalar UI, SignalR hub with Redis backplane, serves the static clients.
+    OpenAPI + Scalar UI, SignalR hub fed by the Redis event relay, serves the static clients.
     Program.cs is composition only: no business logic lives here.
   -->
   <PropertyGroup>
@@ -20,13 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Scalar.AspNetCore" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Static clients (mini-game + back-office) are plain HTML/JS kept under /clients and served by the API -->
-    <Content Include="../../clients/arena-autoplay/**" Link="wwwroot/arena/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="../../clients/backoffice/**" Link="wwwroot/backoffice/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

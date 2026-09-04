@@ -1,4 +1,7 @@
-// IClock.cs
-// Project: Coliseum.Application
-// Purpose: Port: UtcNow. Never DateTime.UtcNow inside use cases (testability)
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Application.Ports;
+
+/// <summary>Injected time source. Use cases never call <c>DateTimeOffset.UtcNow</c>, so tests can freeze time.</summary>
+public interface IClock
+{
+    DateTimeOffset UtcNow { get; }
+}

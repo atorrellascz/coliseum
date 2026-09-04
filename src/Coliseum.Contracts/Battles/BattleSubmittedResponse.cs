@@ -1,4 +1,4 @@
-// BattleSubmittedResponse.cs
-// Project: Coliseum.Contracts
-// Purpose: 202 Accepted payload: battleId, status=queued
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Contracts.Battles;
+
+/// <summary><c>202 Accepted</c> payload: the id to poll (or to subscribe to over SignalR) and the initial status.</summary>
+public sealed record BattleSubmittedResponse(string BattleId, BattleStatus Status, DateTimeOffset SubmittedAt);

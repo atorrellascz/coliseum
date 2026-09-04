@@ -59,6 +59,7 @@ dotnet_diagnostic.CA1062.severity = none   # null checks: nullable reference typ
 dotnet_diagnostic.CA1848.severity = none   # LoggerMessage delegates: applied selectively on hot paths only
 dotnet_diagnostic.CA2007.severity = none   # ConfigureAwait: not needed in ASP.NET Core hosts
 dotnet_diagnostic.IDE0290.severity = none  # primary constructors: optional
+dotnet_diagnostic.CA1711.severity = none   # "Queue" suffix: IBattleQueue is literally a queue abstraction; the name is the domain term
 
 [tests/**.cs]
 dotnet_diagnostic.CA1707.severity = none   # underscores in test method names are the convention

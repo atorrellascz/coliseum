@@ -2,7 +2,7 @@
 
 Backend service + battle engine for the "Backend Development Hands-on Test".
 
-> Status: **MP-03 done** (domain + battle engine, 82 tests green). Hosts arrive in MP-06.
+> Status: **MP-04 done** (domain, engine and application layer; 113 tests green). Redis adapters next (MP-05), hosts in MP-06.
 > Progress board: `docs/TASKS.md`. Step-by-step log: `docs/DEVLOG.md`.
 
 ## Stack

@@ -1,4 +1,43 @@
-// DependencyInjection.cs
-// Project: Coliseum.Application
-// Purpose: AddColiseumApplication(): registers handlers, scheduler, options
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+using Coliseum.Application.Options;
+using Coliseum.Application.UseCases.Battles;
+using Coliseum.Application.UseCases.Leaderboard;
+using Coliseum.Application.UseCases.Players;
+using Coliseum.Domain.Battles;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+
+namespace Coliseum.Application;
+
+/// <summary>
+/// Registers the application layer. Hosts bind the option sections themselves
+/// (<c>services.Configure&lt;BattleRulesOptions&gt;(config.GetSection("Battle"))</c>) so this project stays free of
+/// configuration packages; adapters for the ports come from the infrastructure project.
+/// </summary>
+public static class DependencyInjection
+{
+    public static IServiceCollection AddColiseumApplication(this IServiceCollection services)
+    {
+        services.AddOptions<BattleRulesOptions>().ValidateOnStart();
+        services.TryAddSingleton<IValidateOptions<BattleRulesOptions>, BattleRulesOptionsValidator>();
+        services.TryAddSingleton(provider => provider.GetRequiredService<IOptions<BattleRulesOptions>>().Value.ToRules());
+
+        services.AddOptions<AuthOptions>().ValidateDataAnnotations().ValidateOnStart();
+
+        services.TryAddScoped<CreatePlayerHandler>();
+        services.TryAddScoped<GetPlayerHandler>();
+        services.TryAddScoped<SubmitBattleHandler>();
+        services.TryAddScoped<GetBattleHandler>();
+        services.TryAddScoped<GetLeaderboardHandler>();
+        services.TryAddScoped<ProcessBattleHandler>();
+
+        return services;
+    }
+
+    /// <summary>The worker's scheduler: one instance per process, sized from the options.</summary>
+    public static IServiceCollection AddBattleScheduler(this IServiceCollection services, int maxConcurrency)
+    {
+        services.TryAddSingleton(new Scheduling.BattleScheduler(maxConcurrency));
+        return services;
+    }
+}

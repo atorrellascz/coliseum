@@ -10,7 +10,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-01 | Terraform (AWS: vpc, eks, ecr, elasticache, secrets, iam), validated not applied | [ ] | |
 | MP-02 | Solution skeleton, CPM, analyzers, stubs, docs placeholders | [x] | c868c18, 7080a1d |
 | MP-03 | Domain: value objects, Player aggregate, PRNG, BattleEngine, unit + golden tests | [x] code done, review pending | see DEVLOG |
-| MP-04 | Application: ports, use cases, BattleScheduler, telemetry, fakes | [ ] | |
+| MP-04 | Application: ports, use cases, BattleScheduler, telemetry, fakes | [x] code done, review pending | see DEVLOG |
 | MP-05 | Redis adapters, Lua scripts, integration tests (Testcontainers) | [ ] | |
 | MP-06 | API + Worker hosts, ServiceDefaults, auth, smoke script | [ ] | |
 | MP-06b | MCP server (tools over the API + local simulation) | [ ] | |
@@ -62,6 +62,45 @@ Verification for MP-03 DoD
 
 Tooling lesson learned in MP-03 (see ADR-14): `dotnet test` in Microsoft.Testing.Platform mode forwards unknown
 flags to the test app; `--nologo` makes it exit with code 5 and report "Zero tests ran". Use `--project` / `--solution`.
+
+## MP-04 checklist (review one by one)
+
+Contracts (`src/Coliseum.Contracts`) — wire types, no logic
+- [x] Players/CreatePlayerRequest.cs, PlayerResponse.cs, CreatePlayerResponse.cs
+- [x] Battles/SubmitBattleRequest.cs, BattleStatus.cs, BattleSubmittedResponse.cs, BattleReportResponse.cs (+ TurnResponse, LootResponse)
+- [x] Leaderboard/LeaderboardEntry.cs, LeaderboardResponse.cs
+- [x] Auth/TokenResponse.cs (TokenRequest dropped: the API key travels in a header)
+- [x] Errors/ApiProblem.cs — RFC 9457 shape + errors[]
+- [x] Events/ArenaEvents.cs — polymorphic JSON events (battle.queued / turn / done / failed, leaderboard.changed)
+
+Application (`src/Coliseum.Application`)
+- [x] Caller.cs — who calls (Service | Player), used for data-dependent authorization
+- [x] Ports/IPlayerRepository.cs, IBattleQueue.cs (+ QueuedBattle, QueueStats), IBattleLedger.cs (+ SettlementResult), IBattleReportStore.cs (+ BattleRecord), ILeaderboard.cs, IAuthTokenService.cs, IEventPublisher.cs, IClock.cs, IIdGenerator.cs
+- [x] Mapping/PlayerMapper.cs, BattleMapper.cs
+- [x] UseCases/Players/CreatePlayerHandler.cs, GetPlayerHandler.cs
+- [x] UseCases/Battles/SubmitBattleHandler.cs, GetBattleHandler.cs, ProcessBattleHandler.cs, BattleNarrator.cs
+- [x] UseCases/Leaderboard/GetLeaderboardHandler.cs
+- [x] Scheduling/BattleScheduler.cs, ScheduledBattle.cs — no overlap, no overtaking, bounded concurrency
+- [x] Options/BattleRulesOptions.cs (+ validator), AuthOptions.cs
+- [x] Telemetry/ColiseumTelemetry.cs — ActivitySource + Meter + instruments (OPS-02)
+- [x] DependencyInjection.cs — AddColiseumApplication / AddBattleScheduler
+- [ ] Ports/IGameStats.cs — left as stub for MP-08
+
+Tests (`tests/Coliseum.UnitTests`)
+- [x] Fakes/FixedClock.cs (+ SequentialIdGenerator, FakeTokenService), InMemoryPlayerRepository.cs, InMemoryBattleQueue.cs, InMemoryBattleLedger.cs, InMemoryLeaderboard.cs, InMemoryBattleReportStore.cs, RecordingEventPublisher.cs, FakeWorld.cs
+- [x] Application/BattleSchedulerTests.cs — 3 guarantees + 400-battle / 12-player random simulation
+- [x] Application/CreatePlayerHandlerTests.cs, SubmitBattleHandlerTests.cs, ProcessBattleHandlerTests.cs, GetBattleHandlerTests.cs, GetLeaderboardHandlerTests.cs
+
+Verification for MP-04 DoD
+- [x] Contracts + Application + UnitTests build: 0 warnings; `dotnet format` clean
+- [x] `dotnet test --project tests/Coliseum.UnitTests`: 103 / 103 (31 new)
+- [x] Architecture test still green (Application references only Domain + Contracts)
+- [ ] User reviewed every file above
+- [x] Commit `MP-04: application layer`
+
+Deferred from MP-04
+- Per-turn live events (`BattleTurnEvent`) are published in MP-07 with throttling; the contract exists already.
+- `IGameStats` port and adapter: MP-08.
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

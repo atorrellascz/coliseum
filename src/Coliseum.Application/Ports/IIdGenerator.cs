@@ -1,4 +1,10 @@
-// IIdGenerator.cs
-// Project: Coliseum.Application
-// Purpose: Port: ULID factory for players and battles (PAT-04)
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Application.Ports;
+
+/// <summary>
+/// Factory for new identifiers (PAT-04). Production yields ULIDs: 26 characters, time-sortable, URL-safe and
+/// within the <c>[A-Za-z0-9_-]</c> rule the domain enforces. Tests use predictable sequences.
+/// </summary>
+public interface IIdGenerator
+{
+    string NewId();
+}

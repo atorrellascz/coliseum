@@ -1,4 +1,7 @@
-// TokenResponse.cs
-// Project: Coliseum.Contracts
-// Purpose: accessToken, expiresAt, role
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Contracts.Auth;
+
+/// <summary>Bearer token issued by <c>POST /auth/token</c> (API key exchange) or alongside a new player.</summary>
+/// <param name="AccessToken">JWT to send as <c>Authorization: Bearer</c>.</param>
+/// <param name="ExpiresAt">Absolute expiry; clients should refresh before it.</param>
+/// <param name="Role"><c>service</c> or <c>player</c>.</param>
+public sealed record TokenResponse(string AccessToken, DateTimeOffset ExpiresAt, string Role);

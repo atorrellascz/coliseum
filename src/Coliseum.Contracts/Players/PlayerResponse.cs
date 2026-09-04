@@ -1,4 +1,13 @@
-// PlayerResponse.cs
-// Project: Coliseum.Contracts
-// Purpose: Player DTO returned by the API (never exposes internals)
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Contracts.Players;
+
+/// <summary>Public view of a player. Ids travel as plain strings on the wire.</summary>
+public sealed record PlayerResponse(
+    string Id,
+    string Name,
+    string Description,
+    long Gold,
+    long Silver,
+    int Attack,
+    int Defense,
+    int HitPoints,
+    DateTimeOffset CreatedAt);

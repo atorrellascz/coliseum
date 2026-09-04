@@ -1,4 +1,4 @@
-// LeaderboardResponse.cs
-// Project: Coliseum.Contracts
-// Purpose: Paged leaderboard: entries, offset, limit, total
-// Status: STUB - implemented in MP-04. Design: docs/adr (public) and _referencia (private).
+namespace Coliseum.Contracts.Leaderboard;
+
+/// <summary><c>GET /leaderboard?offset=&amp;limit=</c>. <paramref name="Total"/> is the number of ranked players.</summary>
+public sealed record LeaderboardResponse(IReadOnlyList<LeaderboardEntry> Entries, int Offset, int Limit, long Total);

@@ -19,7 +19,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
 | MP-10 | GitHub Actions CI + release | [x] CI green on GitHub (run 33928977302) | 41b62e7, 2cc0cdf |
 | MP-11 | Argo CD + Rollouts canary | [ ] | |
-| MP-12 | Final docs, video, tag v1.0.0 | [ ] | |
+| MP-12 | Final docs, video, tag v1.0.0 | [~] docs done, tag pending release run; video is the user's | see DEVLOG |
 
 ## MP-03 checklist (review one by one)
 
@@ -184,6 +184,17 @@ Verification for MP-07 DoD
 - [x] .github/workflows/release.yml — GHCR images with SBOM/provenance, NuGet packages to GitHub Packages, Helm chart as OCI
 - [x] docs/ci.md; README badge
 - [x] First real CI run green: build-test, integration (Redis service container), images ×3 + Trivy, helm + kubeconform (run 33928977302). A first attempt failed on a non-existent `trivy-action@0.28.0` tag; pinned to v0.36.0.
+
+## MP-12 checklist
+
+- [x] README.md rewritten as the final deliverable (quick start, curl walkthrough, architecture, decisions, rules, assumptions, trade-offs, left out, next, quality gates, "What you can try", docs map)
+- [x] All 16 ADRs complete (no "to be completed" left)
+- [x] docs/security.md (threat model + what is not covered), docs/sre.md (signals, SLOs, alerts, capacity), docs/runbooks/RB-01..RB-06
+- [x] scripts/replay-dlq.sh implemented (RB-02)
+- [x] AGENTS.md rewritten honestly
+- [x] Spanish: _referencia/11-COMO-PROBAR-Y-DEMO.md, _referencia/12-GUION-FINAL-ENTREVISTA.md
+- [ ] Tag v1.0.0 after CI and the release workflow are green (GHCR images, NuGet packages, Helm OCI chart)
+- [ ] Video (docs/demo.mp4 or link): the user records it following _referencia/12 §Guion
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

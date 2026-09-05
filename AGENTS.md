@@ -1,21 +1,35 @@
-# AGENTS.md — how AI is used in this repository
+# AGENTS.md — how AI was used in this repository
 
-This repository is built with an AI pair (Claude Code) acting as a senior backend / SRE / DBA reviewer.
-The rules below apply to any agent or human contributing.
+This repository was built by its author pair-programming with Claude Code (Anthropic) over three days. The
+division of labour, so the reader can judge what to trust and how.
 
-## Ground rules
-- Every engine formula and every Lua script is verified by hand against the examples in the spec before merge.
-- The AI proposes; the author reviews every generated file and decides. Nothing lands unread.
-- Tests are written to fail first when a rule changes (golden files, property tests), so regressions are caught even when the AI edits code.
-- Private planning notes live outside the repo (`_referencia/`, git-ignored). Public design lives in `docs/adr`.
+## What the AI did
+- Turned a written plan (requirements analysis, architecture, micro-project roadmap, written by the author) into
+  code, one micro-project at a time, in the order the author set.
+- Wrote the first version of every file, including tests, Lua scripts, Helm templates, workflows and docs.
+- Ran builds, tests, containers and clusters, and fixed what broke, recording each finding in `docs/DEVLOG.md`.
 
-## Working conventions for agents
-- Language: code and comments in English; commit messages in English.
-- Do not add a NuGet package without adding its version to `Directory.Packages.props`.
-- `Coliseum.Domain` and `Coliseum.Contracts` must stay dependency-free (architecture test).
-- Keep `Program.cs` files as composition roots only.
-- Log every meaningful step in `docs/DEVLOG.md`.
+## What the author did
+- Wrote the specification analysis and the architecture, chose Redis Streams, the Lua settlement, the deterministic
+  engine and the scheduler design before any code existed.
+- Reviewed every generated file (the review checklists are in `docs/TASKS.md`), redirected the work when it
+  drifted (for example: "Program.cs stays composition only", which became an architecture test), and decided every
+  trade-off listed in the README.
+- Owns the interview: the reasoning behind each decision is documented so it can be defended, not recited.
 
-## MCP
-`src/Coliseum.Mcp` is a Model Context Protocol server so an agent can play the game (create players, submit battles,
-read reports, read the leaderboard) and run what-if simulations locally with the same engine the server uses.
+## What was verified by hand or by machine, not taken on faith
+- The engine formulas against the examples in the spec (unit tests are the literal examples).
+- The PRNG, seed expander and hash against published reference vectors.
+- The settlement script against a real Redis, including double application, floors and caps.
+- Every host started for real (Compose, Docker Desktop Kubernetes, k3d) and hit with the smoke script; the tests
+  alone missed three start-up/static-file bugs that the live runs caught.
+- Package versions checked against nuget.org; action tags checked against GitHub (one wrong tag broke a CI run
+  and was fixed the same hour).
+
+## Rules for agents working on this repository
+- Read `docs/TASKS.md` first; update it and `docs/DEVLOG.md` at every step.
+- Code and comments in English. No business logic in `Program.cs`. No new NuGet package without a line in
+  `Directory.Packages.props`. `Coliseum.Domain` and `Coliseum.Contracts` stay dependency-free.
+- Every change ships with tests; `dotnet build` must stay at zero warnings and `dotnet format` clean.
+- Never point `kubectl` at a cluster without an explicit `--context`.
+- The MCP server (`src/Coliseum.Mcp`) is how an agent should play the game; it inherits the API's rules.

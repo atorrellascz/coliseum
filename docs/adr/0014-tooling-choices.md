@@ -1,10 +1,23 @@
-# ADR-0014: Tooling: .slnx, CPM, xunit.v3, Shouldly, Testcontainers, no MediatR/FluentAssertions/Serilog
+# ADR-0014: Tooling choices
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
 
 ## Context and decision
-.slnx is the .NET 10 default. MediatR and FluentAssertions moved to commercial licenses; a handler per use case and Shouldly cover the need. Built-in JSON console logging + OpenTelemetry replace Serilog. Two OpenTelemetry packages (Prometheus exporter, StackExchange.Redis instrumentation) only exist as beta and are pinned explicitly. Tests run on Microsoft.Testing.Platform (xunit.v3 4.0 dropped MTP v1; the .NET 10 SDK requires the MTP mode of dotnet test via global.json). coverlet.collector is a VSTest collector and was removed; coverage will come from the MTP code-coverage extension. Gotcha: never pass --nologo to dotnet test in MTP mode, it is forwarded to the test app and produces "Zero tests ran" with exit code 5.
+- `.slnx` solution format (the .NET 10 default): readable XML, no GUIDs.
+- Central Package Management with transitive pinning; a repo-level `nuget.config` with `<clear/>` so every clone
+  and CI run resolves from nuget.org only.
+- Analyzers at `latest-recommended` with warnings as errors, `EnforceCodeStyleInBuild`, deterministic builds.
+- xunit.v3 on Microsoft.Testing.Platform (`global.json` `test.runner`), Shouldly, NSubstitute, Testcontainers.
+- No MediatR (a handler per use case needs no library), no FluentAssertions (license change), no Serilog
+  (built-in JSON console plus OpenTelemetry logs). Two OpenTelemetry packages (Prometheus exporter, StackExchange.Redis
+  instrumentation) only exist as beta and are pinned explicitly.
+- Source-generated logging (`[LoggerMessage]`) everywhere: required by CA1873 and cheaper at runtime.
 
 ## Consequences
-_To be completed when the micro-project that implements it lands._
+- `dotnet test` must be invoked per project (`--project`) and never with `--nologo` in MTP mode (the flag is
+  forwarded to the test app, which exits with code 5 and reports "Zero tests ran").
+- coverlet (a VSTest collector) was removed; coverage would come from the MTP code-coverage extension.
+- Naming rules are strict: private const/static fields PascalCase, instance fields `_camelCase`; CA1711 (the
+  `Queue` suffix) is disabled with a justification because `IBattleQueue` is literally a queue.
+- The dependency rule and the composition-only `Program.cs` are enforced by tests, not conventions.

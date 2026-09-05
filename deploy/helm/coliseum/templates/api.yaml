@@ -1,4 +1,5 @@
 {{- $labels := dict "root" . "component" "api" -}}
+{{- if not .Values.api.rollout.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,6 +7,8 @@ metadata:
   labels:
     {{- include "coliseum.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   {{- if not .Values.api.autoscaling.enabled }}
   replicas: {{ .Values.api.replicas }}
@@ -57,6 +60,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -95,8 +99,8 @@ metadata:
     {{- include "coliseum.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+    apiVersion: {{ if .Values.api.rollout.enabled }}argoproj.io/v1alpha1{{ else }}apps/v1{{ end }}
+    kind: {{ if .Values.api.rollout.enabled }}Rollout{{ else }}Deployment{{ end }}
     name: {{ include "coliseum.fullname" . }}-api
   minReplicas: {{ .Values.api.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.api.autoscaling.maxReplicas }}

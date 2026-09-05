@@ -7,6 +7,8 @@ other, a worker simulates the battles deterministically, settles the loot atomic
 by everything they have stolen. Live events reach browsers over SignalR, AI agents play through an MCP server, and
 the whole thing ships as containers with a Helm chart, dashboards, alerts and runbooks.
 
+**Release:** [v1.0.0](https://github.com/atorrellascz/coliseum/releases/tag/v1.0.0): images `ghcr.io/atorrellascz/coliseum-{api,worker,mcp}:1.0.0`, NuGet `Coliseum.Domain` / `Coliseum.Contracts` 1.0.0, Helm chart `oci://ghcr.io/atorrellascz/charts/coliseum`.
+
 **Stack:** C# / .NET 10 · Redis 7 (store, queue, leaderboard, pub/sub, Lua) · ASP.NET Core Minimal APIs · SignalR ·
 OpenTelemetry · Model Context Protocol · Docker Compose · Helm / k3d · GitHub Actions · Terraform (AWS) · Argo CD.
 

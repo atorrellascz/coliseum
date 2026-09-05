@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "coliseum.labels" . | nindent 4 }}
     app.kubernetes.io/component: worker
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   replicas: {{ .Values.worker.replicas }}
   # Recreate: never two generations consuming at once; pending entries of the old pod are reclaimed by the new one.

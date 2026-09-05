@@ -1,0 +1,43 @@
+# Argo CD Application: the cluster converges to the chart in Git. Automated sync with prune and self-heal;
+# sync waves in the chart order redis -> worker -> api -> mcp (annotations on the templates).
+# For a local cluster point valueFiles at values-local.yaml; for AWS use values-dev.yaml with the Terraform outputs.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coliseum
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io # deleting the Application removes its resources
+spec:
+  project: coliseum
+  source:
+    repoURL: https://github.com/atorrellascz/coliseum.git
+    targetRevision: main
+    path: deploy/helm/coliseum
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-local.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: coliseum
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
+  ignoreDifferences:
+    # The HPA owns replicas of the API when autoscaling is enabled.
+    - group: apps
+      kind: Deployment
+      name: coliseum-coliseum-api
+      jsonPointers:
+        - /spec/replicas

@@ -19,7 +19,8 @@ redis:
   image: redis:7-alpine
   storage: 1Gi
   external:
-    url: ""               # host:port[,password=...]
+    url: ""               # host:port[,password=...,ssl=true]
+    fromSecret: false     # true: read REDIS_URL from the app secret key "redisUrl" (Terraform + External Secrets)
 
 otel:
   endpoint: ""            # e.g. http://otel-lgtm:4317; empty disables OTLP export (Prometheus scraping still works)
@@ -29,6 +30,10 @@ api:
   resources:
     requests: { cpu: 100m, memory: 128Mi }
     limits: { cpu: "1", memory: 256Mi }
+  rollout:
+    enabled: false          # Argo Rollouts canary instead of a Deployment (needs the Rollouts CRDs, MP-11)
+    pause: 2m
+    prometheusAddress: http://prometheus-operated.monitoring:9090
   autoscaling:
     enabled: true
     minReplicas: 2

@@ -1,0 +1,32 @@
+# AWS dev environment: images from ECR (Terraform outputs), external ElastiCache, secrets via External Secrets,
+# Prometheus Operator monitoring, canary rollout for the API through Argo Rollouts.
+image:
+  registry: 123456789012.dkr.ecr.eu-west-1.amazonaws.com # terraform output ecr_repository_urls
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+
+redis:
+  embedded: false
+  external:
+    fromSecret: true # REDIS_URL comes from the app secret key "redisUrl" (Terraform + External Secrets)
+
+secrets:
+  existingSecret: coliseum-app
+
+otel:
+  endpoint: http://otel-collector.monitoring:4317
+
+api:
+  replicas: 2
+  autoscaling:
+    enabled: true
+  rollout:
+    enabled: true # Argo Rollouts canary with Prometheus analysis (requires the Rollouts CRDs)
+  ingress:
+    enabled: true
+    className: nginx
+    host: coliseum.dev.example.com
+
+monitoring:
+  serviceMonitor: true
+  networkPolicy: true

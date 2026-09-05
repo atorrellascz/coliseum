@@ -4,7 +4,7 @@ API service:    {{ include "coliseum.fullname" . }}-api ({{ .Values.api.service.
 {{- if .Values.mcp.enabled }}
 MCP service:    {{ include "coliseum.fullname" . }}-mcp ({{ .Values.mcp.service.type }}, port {{ .Values.mcp.service.port }})
 {{- end }}
-Redis:          {{ include "coliseum.redisUrl" . }}
+Redis:          {{ if and (not .Values.redis.embedded) .Values.redis.external.fromSecret }}external, URL from secret {{ include "coliseum.secretName" . }} (key redisUrl){{ else }}{{ include "coliseum.redisUrl" . }}{{ end }}
 
 Try it:
   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "coliseum.fullname" . }}-api 8080:{{ .Values.api.service.port }}

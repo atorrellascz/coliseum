@@ -7,6 +7,8 @@ metadata:
   labels:
     {{- include "coliseum.labels" . | nindent 4 }}
     app.kubernetes.io/component: mcp
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   replicas: {{ .Values.mcp.replicas }}
   selector:

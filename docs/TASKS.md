@@ -18,8 +18,8 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-08 | Back-office (RED / USE / economy) + admin stats + widget + arena polish | [x] code done, review pending | see DEVLOG |
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
 | MP-10 | GitHub Actions CI + release | [x] CI green on GitHub (run 33928977302) | 41b62e7, 2cc0cdf |
-| MP-11 | Argo CD + Rollouts canary | [ ] | |
-| MP-12 | Final docs, video, tag v1.0.0 | [~] docs done, tag pending release run; video is the user's | see DEVLOG |
+| MP-11 | Argo CD + Rollouts canary | [x] manifests + Rollout template validated (lint, template, kubeconform in CI); live Argo CD install documented, not exercised | see DEVLOG |
+| MP-12 | Final docs, video, tag v1.0.0 | [x] docs done, v1.0.0 released (GHCR images, NuGet, Helm OCI); video is the user's | 310cdbc, v1.0.0 |
 
 ## MP-03 checklist (review one by one)
 
@@ -203,6 +203,16 @@ Verification for MP-07 DoD
 - [x] CI job `terraform` (fmt, init, validate)
 - [ ] Applied to AWS: no (cost); the README states it
 
+## MP-11 checklist
+
+- [x] deploy/argocd/project.yaml (AppProject, least privilege), application.yaml (automated sync, prune, selfHeal, server-side apply, retry, HPA replicas ignored)
+- [x] Sync waves on the chart: redis 0 → worker 1 → api 2 → mcp 3
+- [x] templates/rollout.yaml: Rollout canary 20/50/100 with pauses + AnalysisTemplate (5xx ratio < 1 %, p99 < 250 ms) behind `api.rollout.enabled`; HPA re-targets the Rollout; Deployment rendered otherwise
+- [x] values-dev.yaml (ECR, external Redis from the secret via `redis.external.fromSecret`, ExternalSecret, ServiceMonitor, ingress, rollout)
+- [x] docs/gitops.md with install steps and an explicit validation status
+- [x] `helm lint` + `helm template` with values / values-local / values-dev; CI kubeconform on all three
+- [ ] Live Argo CD sync on a local cluster: not exercised (documented path)
+
 ## MP-12 checklist
 
 - [x] README.md rewritten as the final deliverable (quick start, curl walkthrough, architecture, decisions, rules, assumptions, trade-offs, left out, next, quality gates, "What you can try", docs map)
@@ -211,7 +221,7 @@ Verification for MP-07 DoD
 - [x] scripts/replay-dlq.sh implemented (RB-02)
 - [x] AGENTS.md rewritten honestly
 - [x] Spanish: _referencia/11-COMO-PROBAR-Y-DEMO.md, _referencia/12-GUION-FINAL-ENTREVISTA.md
-- [ ] Tag v1.0.0 after CI and the release workflow are green (GHCR images, NuGet packages, Helm OCI chart)
+- [x] Tag v1.0.0: release run 33952022657 green (GHCR images with SBOM, NuGet packages, Helm OCI chart)
 - [ ] Video (docs/demo.mp4 or link): the user records it following _referencia/12 §Guion
 
 ## Assumptions added in MP-03 (to surface in README)

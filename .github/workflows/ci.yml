@@ -115,8 +115,10 @@ jobs:
         run: |
           helm lint deploy/helm/coliseum
           helm lint deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml
+          helm lint deploy/helm/coliseum -f deploy/helm/coliseum/values-dev.yaml
       - name: kubeconform
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
-          helm template coliseum deploy/helm/coliseum | ./kubeconform -strict -summary -ignore-missing-schemas
+          helm template coliseum deploy/helm/coliseum |          helm template coliseum deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml | ./kubeconform -strict -summary -ignore-missing-schemas
+          helm template coliseum deploy/helm/coliseum -f deploy/helm/coliseum/values-dev.yaml | ./kubeconform -strict -summary -ignore-missing-schemas
           helm template coliseum deploy/helm/coliseum -f deploy/helm/coliseum/values-local.yaml | ./kubeconform -strict -summary -ignore-missing-schemas

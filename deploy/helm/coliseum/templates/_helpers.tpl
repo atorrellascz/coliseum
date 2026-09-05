@@ -31,13 +31,18 @@ app.kubernetes.io/component: {{ .component }}
 {{- end -}}
 
 {{- define "coliseum.redisUrl" -}}
-{{- if .Values.redis.embedded -}}{{ include "coliseum.fullname" . }}-redis:6379{{- else -}}{{ required "redis.external.url is required when redis.embedded=false" .Values.redis.external.url }}{{- end -}}
+{{- if .Values.redis.embedded -}}{{ include "coliseum.fullname" . }}-redis:6379{{- else -}}{{ required "redis.external.url is required when redis.embedded=false and redis.external.fromSecret=false" .Values.redis.external.url }}{{- end -}}
 {{- end -}}
 
-{{/* Environment shared by every .NET host */}}
+{{/* Environment shared by every .NET host. The Redis URL is either computed (embedded), given (external.url) or
+     read from the app secret's redisUrl key (external.fromSecret, what Terraform + External Secrets produce). */}}
 {{- define "coliseum.commonEnv" -}}
 - name: REDIS_URL
+{{- if and (not .Values.redis.embedded) .Values.redis.external.fromSecret }}
+  valueFrom: { secretKeyRef: { name: {{ include "coliseum.secretName" . }}, key: redisUrl } }
+{{- else }}
   value: {{ include "coliseum.redisUrl" . | quote }}
+{{- end }}
 - name: ASPNETCORE_ENVIRONMENT
   value: Production
 {{- if .Values.otel.endpoint }}

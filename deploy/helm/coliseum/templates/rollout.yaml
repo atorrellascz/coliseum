@@ -1,0 +1,111 @@
+{{- if .Values.api.rollout.enabled }}
+{{- $labels := dict "root" . "component" "api" -}}
+# Canary for the API with Argo Rollouts (ADR-0012): 20 % -> 50 % -> 100 % with pauses; each step is gated by an
+# AnalysisRun against Prometheus (5xx ratio below 1 %, p99 below 250 ms). A failed analysis aborts and routes all
+# traffic back to the stable ReplicaSet. Replaces the plain Deployment when enabled (see api.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "coliseum.fullname" . }}-api
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: {{ .Values.api.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "coliseum.selectorLabels" $labels | nindent 6 }}
+  strategy:
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+      analysis:
+        templates:
+          - templateName: {{ include "coliseum.fullname" . }}-api-slo
+        startingStep: 1
+        args:
+          - name: service
+            value: {{ include "coliseum.fullname" . }}-api
+      steps:
+        - setWeight: 20
+        - pause: { duration: {{ .Values.api.rollout.pause | quote }} }
+        - setWeight: 50
+        - pause: { duration: {{ .Values.api.rollout.pause | quote }} }
+        - setWeight: 100
+  template:
+    metadata:
+      labels:
+        {{- include "coliseum.selectorLabels" $labels | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        checksum/secret: {{ .Values.secrets | toYaml | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "coliseum.fullname" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: api
+          image: {{ include "coliseum.image" (dict "root" . "name" .Values.image.api) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            {{- include "coliseum.commonEnv" . | nindent 12 }}
+            - name: Auth__SigningKey
+              valueFrom: { secretKeyRef: { name: {{ include "coliseum.secretName" . }}, key: signingKey } }
+            - name: Auth__ApiKeys__0
+              valueFrom: { secretKeyRef: { name: {{ include "coliseum.secretName" . }}, key: apiKey } }
+            {{- range $i, $origin := .Values.api.corsOrigins }}
+            - name: Cors__Origins__{{ $i }}
+              value: {{ $origin | quote }}
+            {{- end }}
+          {{- include "coliseum.probes" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "coliseum.fullname" . }}-api-slo
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+spec:
+  args:
+    - name: service
+  metrics:
+    - name: error-ratio
+      interval: 1m
+      count: 5
+      successCondition: result[0] < 0.01
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{ .Values.api.rollout.prometheusAddress | quote }}
+          query: |
+            sum(rate(http_server_request_duration_seconds_count{service_name="coliseum-api",http_response_status_code=~"5.."}[2m]))
+              / clamp_min(sum(rate(http_server_request_duration_seconds_count{service_name="coliseum-api"}[2m])), 1)
+    - name: p99-latency
+      interval: 1m
+      count: 5
+      successCondition: result[0] < 0.25
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{ .Values.api.rollout.prometheusAddress | quote }}
+          query: |
+            histogram_quantile(0.99, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name="coliseum-api"}[2m])))
+{{- end }}

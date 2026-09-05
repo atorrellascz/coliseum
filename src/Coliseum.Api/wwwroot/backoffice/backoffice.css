@@ -32,3 +32,7 @@ dialog::backdrop { background: rgba(0,0,0,.6); }
 .meta { font-size: .8rem; color: var(--muted); white-space: pre-wrap; }
 .narrative { font-size: .85rem; line-height: 1.5; max-height: 50vh; overflow-y: auto; padding-left: 1.2rem; }
 @media (max-width: 52rem) { .grid { grid-template-columns: 1fr; } }
+.ops { display: grid; gap: .4rem; margin-bottom: .6rem; }
+.ops .row { display: flex; gap: .5rem; align-items: end; flex-wrap: wrap; } .ops label { flex: 1; min-width: 6rem; }
+.ops select { background: #0b0e12; color: var(--text); border: 1px solid var(--line); border-radius: .35rem; padding: .45rem .5rem; }
+.small { font-size: .8rem; }

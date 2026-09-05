@@ -60,7 +60,22 @@ by accident.
 
 `bash scripts/k3d-up.sh` creates a 1-server / 2-agent cluster, imports the local images and runs `helm-up.sh`.
 
-## 4. What is not built (and why)
+## 4. Scripts for demos and operations
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/smoke.sh` / `scripts/smoke.ps1` | end-to-end check through the API (token, players, battles, leaderboard accounting) |
+| `scripts/helm-up.sh` | build images, install the chart, port-forward API (18080) and Grafana (13000), smoke |
+| `scripts/k3d-up.sh` | 3-node k3d cluster + image import + `helm-up.sh` |
+| `scripts/argocd-up.sh` | install Argo CD, apply AppProject + Application, wait for Synced/Healthy, port-forward the UI |
+| `scripts/chaos-worker.sh` | dead-consumer demo: XPENDING → XAUTOCLAIM → exactly-once settlement (Compose or `MODE=k8s`) |
+| `scripts/mcp-demo.sh` | MCP walkthrough over HTTP (initialize, tools/list, simulate, create players, play, leaderboard) |
+| `scripts/replay-dlq.sh` | move dead-lettered battles back to the stream (RB-02) |
+
+The local chart values enable `monitoring.otelLgtm` (Grafana + Prometheus + Loki + Tempo with the Coliseum dashboard) so the
+Kubernetes track has the same dashboards as Compose. See `docs/demo-playbook.md` for the ordered rehearsal.
+
+## 5. What is not built (and why)
 
 - **Redis Cluster / multi-region**: the exercise runs on one Redis; the key schema uses no hash tags yet.
 - **Argo CD / Rollouts** (MP-11): manifests are planned; the chart is the unit Argo would sync.

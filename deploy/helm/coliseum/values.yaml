@@ -70,6 +70,9 @@ mcp:
 monitoring:
   serviceMonitor: false   # requires the Prometheus Operator CRDs
   networkPolicy: true
+  otelLgtm:
+    enabled: false        # bundled Grafana + Prometheus + Loki + Tempo with the Coliseum dashboard (local demos only)
+    image: grafana/otel-lgtm:latest
 
 podSecurityContext:
   runAsNonRoot: true

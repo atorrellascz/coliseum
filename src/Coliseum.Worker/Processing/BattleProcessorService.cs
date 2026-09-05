@@ -38,7 +38,22 @@ public sealed partial class BattleProcessorService(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         RegisterGauges();
-        await queue.InitializeAsync(stoppingToken);
+
+        // Redis may still be starting (pods launch in parallel): retry the group creation instead of failing the host.
+        while (true)
+        {
+            try
+            {
+                await queue.InitializeAsync(stoppingToken);
+                break;
+            }
+            catch (Exception ex) when (ex is RedisException or TimeoutException)
+            {
+                LogRedisTrouble(logger, ex);
+                await Task.Delay(_options.PollInterval * 8, stoppingToken);
+            }
+        }
+
         LogStarted(logger, _options.ConsumerName, _options.MaxConcurrency);
 
         DateTimeOffset lastClaim = DateTimeOffset.MinValue;

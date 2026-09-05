@@ -22,11 +22,19 @@
   }
   function signOut() { sessionStorage.removeItem('coliseum.backoffice'); location.reload(); }
 
-  async function api(path) {
-    const res = await fetch(path, { headers: { Authorization: 'Bearer ' + state.token } });
+  async function api(path, { method = 'GET', body } = {}) {
+    const res = await fetch(path, {
+      method,
+      headers: { Authorization: 'Bearer ' + state.token, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
     if (res.status === 401) { signOut(); return null; }
-    if (!res.ok) throw new Error(`${res.status} on ${path}`);
-    return res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      const errors = data?.errors?.map((e) => (e.field ? `${e.field}: ${e.message}` : e.message)).join('; ');
+      throw new Error(errors || data?.title || `${res.status} on ${path}`);
+    }
+    return data;
   }
 
   // ---------- Prometheus text parsing (RED from the API's own /metrics) ----------
@@ -178,7 +186,37 @@
 
   async function loadNames() {
     const players = await api('/players?limit=100');
-    (players || []).forEach((p) => { state.names[p.id] = p.name; });
+    if (!players) return;
+    players.forEach((p) => { state.names[p.id] = p.name; });
+    state.players = players;
+    $('players').innerHTML = players.slice(0, 12).map((p) => `<tr><td>${p.name}</td><td>${p.attack} / ${p.defense} / ${p.hitPoints}</td><td>${p.gold.toLocaleString()}</td><td>${p.silver.toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">no players yet: create one on the left</td></tr>';
+    for (const id of ['opAttacker', 'opDefender']) {
+      const sel = $(id), cur = sel.value;
+      sel.innerHTML = players.map((p) => `<option value="${p.id}">${p.name}</option>`).join('');
+      if (players.some((p) => p.id === cur)) sel.value = cur;
+    }
+    if (players.length > 1 && $('opAttacker').value === $('opDefender').value) $('opDefender').selectedIndex = 1;
+  }
+
+  // ---------- operations (the API through the back-office) ----------
+  async function createPlayer(ev) {
+    ev.preventDefault();
+    try {
+      const created = await api('/players', { method: 'POST', body: { name: $('opName').value.trim(), description: 'created from the back-office', gold: +$('opGold').value, silver: +$('opSilver').value, attack: +$('opAttack').value, defense: +$('opDefense').value, hitPoints: +$('opHp').value } });
+      $('opResult').textContent = `Created ${created.player.name} (${created.player.id}). A 1-hour player token was returned; the arena would use it.`;
+      $('opName').value = '';
+      await loadNames();
+    } catch (err) { $('opResult').textContent = 'Create failed: ' + err.message; }
+  }
+  async function submitBattles(ev) {
+    ev.preventDefault();
+    const attackerId = $('opAttacker').value, defenderId = $('opDefender').value, count = Math.min(50, Math.max(1, +$('opCount').value || 1));
+    if (!attackerId || !defenderId) { $('opResult').textContent = 'Create at least two players first.'; return; }
+    try {
+      const ids = [];
+      for (let i = 0; i < count; i++) ids.push((await api('/battles', { method: 'POST', body: { attackerId, defenderId } })).battleId);
+      $('opResult').textContent = `${ids.length} battle(s) accepted (202): ${ids.map((i) => i.slice(0, 8)).join(', ')}. Watch the live feed and the queue tiles.`;
+    } catch (err) { $('opResult').textContent = 'Submit failed: ' + err.message; }
   }
 
   // ---------- boot ----------
@@ -196,6 +234,8 @@
   $('signin').addEventListener('click', signIn);
   $('signout').addEventListener('click', signOut);
   $('closeReport').addEventListener('click', () => $('report').close());
+  $('createForm').addEventListener('submit', createPlayer);
+  $('battleForm').addEventListener('submit', submitBattles);
   $('battles').addEventListener('click', (ev) => { const id = ev.target.closest('tr')?.dataset.id; if (id) openReport(id); });
   const saved = sessionStorage.getItem('coliseum.backoffice');
   if (saved) boot(saved).catch(signOut);

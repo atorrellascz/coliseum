@@ -15,3 +15,6 @@ mcp:
     type: NodePort
 redis:
   storage: 256Mi
+monitoring:
+  otelLgtm:
+    enabled: true          # Grafana at svc/coliseum-coliseum-otel-lgtm:3000 (port-forward), dashboard provisioned

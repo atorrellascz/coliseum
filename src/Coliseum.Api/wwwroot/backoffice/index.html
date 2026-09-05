@@ -59,6 +59,38 @@
       </div>
     </section>
 
+    <section class="grid">
+      <div class="card">
+        <h3>Operations <span class="muted">the same API the clients use, with the service token</span></h3>
+        <form id="createForm" class="ops">
+          <div class="row">
+            <label>Name <input id="opName" maxlength="20" required placeholder="max 20 chars"></label>
+            <label>Attack <input id="opAttack" type="number" min="1" max="10000" value="70"></label>
+            <label>Defense <input id="opDefense" type="number" min="0" max="10000" value="30"></label>
+            <label>HP <input id="opHp" type="number" min="1" max="10000" value="100"></label>
+          </div>
+          <div class="row">
+            <label>Gold <input id="opGold" type="number" min="0" max="1000000000" value="5000"></label>
+            <label>Silver <input id="opSilver" type="number" min="0" max="1000000000" value="1200"></label>
+            <button type="submit" class="primary">Create player</button>
+          </div>
+        </form>
+        <form id="battleForm" class="ops">
+          <div class="row">
+            <label>Attacker <select id="opAttacker"></select></label>
+            <label>Defender <select id="opDefender"></select></label>
+            <label>Count <input id="opCount" type="number" min="1" max="50" value="1"></label>
+            <button type="submit" class="primary">Submit battle(s)</button>
+          </div>
+        </form>
+        <p id="opResult" class="muted small"></p>
+      </div>
+      <div class="card">
+        <h3>Recent players <span class="muted">newest first</span></h3>
+        <table class="board"><thead><tr><th>Name</th><th>ATK / DEF / HP</th><th>Gold</th><th>Silver</th></tr></thead><tbody id="players"></tbody></table>
+      </div>
+    </section>
+
     <section class="card">
       <h3>Live battles <span class="muted">click a row for the full report</span></h3>
       <table class="feed"><thead><tr><th>Battle</th><th>Attacker</th><th>Defender</th><th>Status</th><th>Turns</th><th>Winner</th><th>Score</th></tr></thead><tbody id="battles"></tbody></table>

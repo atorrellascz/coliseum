@@ -45,9 +45,11 @@ app.kubernetes.io/component: {{ .component }}
 {{- end }}
 - name: ASPNETCORE_ENVIRONMENT
   value: Production
-{{- if .Values.otel.endpoint }}
+{{- $otel := .Values.otel.endpoint }}
+{{- if and (not $otel) .Values.monitoring.otelLgtm.enabled }}{{- $otel = printf "http://%s-otel-lgtm:4317" (include "coliseum.fullname" .) }}{{- end }}
+{{- if $otel }}
 - name: OTEL_EXPORTER_OTLP_ENDPOINT
-  value: {{ .Values.otel.endpoint | quote }}
+  value: {{ $otel | quote }}
 - name: OTEL_EXPORTER_OTLP_PROTOCOL
   value: grpc
 {{- end }}
@@ -64,6 +66,6 @@ readinessProbe:
   periodSeconds: 5
 startupProbe:
   httpGet: { path: /healthz/live, port: http }
-  failureThreshold: 30
-  periodSeconds: 1
+  failureThreshold: 60
+  periodSeconds: 2   # up to 120 s: a cold node pulling other images can slow the first start well past 30 s
 {{- end -}}

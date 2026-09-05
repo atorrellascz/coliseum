@@ -1,0 +1,89 @@
+{{- if .Values.monitoring.otelLgtm.enabled }}
+{{- $labels := dict "root" . "component" "otel-lgtm" -}}
+# Local observability stack (Grafana + Prometheus + Loki + Tempo in one container) with the Coliseum dashboard
+# provisioned. For demos and local clusters only: production uses the platform's Prometheus / Grafana
+# (monitoring.serviceMonitor + otel.endpoint).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "coliseum.fullname" . }}-grafana
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: coliseum
+        orgId: 1
+        folder: Coliseum
+        type: file
+        options:
+          path: /otel-lgtm/grafana/dashboards
+  coliseum.json: |-
+{{ .Files.Get "files/grafana/coliseum.json" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "coliseum.fullname" . }}-otel-lgtm
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: otel-lgtm
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "coliseum.selectorLabels" $labels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "coliseum.selectorLabels" $labels | nindent 8 }}
+    spec:
+      containers:
+        - name: otel-lgtm
+          image: {{ .Values.monitoring.otelLgtm.image }}
+          ports:
+            - { name: grafana, containerPort: 3000 }
+            - { name: otlp-grpc, containerPort: 4317 }
+            - { name: otlp-http, containerPort: 4318 }
+          env:
+            - name: ENABLE_LOGS_ALL
+              value: "true"
+          readinessProbe:
+            httpGet: { path: /api/health, port: grafana }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 200m, memory: 512Mi }
+            limits: { cpu: "2", memory: 2Gi }
+          volumeMounts:
+            - name: grafana
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/coliseum.yaml
+              subPath: dashboards.yaml
+            - name: grafana
+              mountPath: /otel-lgtm/grafana/dashboards/coliseum.json
+              subPath: coliseum.json
+      volumes:
+        - name: grafana
+          configMap:
+            name: {{ include "coliseum.fullname" . }}-grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "coliseum.fullname" . }}-otel-lgtm
+  labels:
+    {{- include "coliseum.labels" . | nindent 4 }}
+    app.kubernetes.io/component: otel-lgtm
+spec:
+  selector:
+    {{- include "coliseum.selectorLabels" $labels | nindent 4 }}
+  ports:
+    - { name: grafana, port: 3000, targetPort: grafana }
+    - { name: otlp-grpc, port: 4317, targetPort: otlp-grpc }
+    - { name: otlp-http, port: 4318, targetPort: otlp-http }
+{{- end }}

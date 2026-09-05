@@ -212,6 +212,6 @@ from the environment or Kubernetes Secrets.
 | [docs/redis-data-model.md](docs/redis-data-model.md) | Keys, scripts, operational settings |
 | [docs/api.md](docs/api.md) · [docs/live-events.md](docs/live-events.md) · [docs/mcp.md](docs/mcp.md) | Interfaces |
 | [docs/security.md](docs/security.md) · [docs/sre.md](docs/sre.md) · [docs/runbooks/](docs/runbooks/) | Operating it |
-| [docs/deploy.md](docs/deploy.md) · [docs/local-kubernetes.md](docs/local-kubernetes.md) · [docs/ci.md](docs/ci.md) | Shipping it |
+| [docs/deploy.md](docs/deploy.md) · [docs/local-kubernetes.md](docs/local-kubernetes.md) · [docs/ci.md](docs/ci.md) · [docs/gitops.md](docs/gitops.md) · [deploy/terraform/README.md](deploy/terraform/README.md) | Shipping it |
 | [docs/adr/](docs/adr/) · [docs/TASKS.md](docs/TASKS.md) · [docs/DEVLOG.md](docs/DEVLOG.md) | Decisions and history |
 | [AGENTS.md](AGENTS.md) | How AI was used |

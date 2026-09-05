@@ -1,3 +1,4 @@
+using Coliseum.Application.UseCases.Admin;
 using Coliseum.Application.UseCases.Battles;
 using Coliseum.Application.UseCases.Leaderboard;
 using Coliseum.Application.UseCases.Players;
@@ -60,7 +61,11 @@ internal sealed class FakeWorld
 
     public ListPlayersHandler ListPlayers => new(Players);
 
-    public ProcessBattleHandler ProcessBattle => new(Players, Reports, Ledger, Leaderboard, Events, Rules, Clock, NullLogger<ProcessBattleHandler>.Instance);
+    public InMemoryGameStats Stats { get; } = new();
+
+    public ProcessBattleHandler ProcessBattle => new(Players, Reports, Ledger, Leaderboard, Stats, Events, Rules, Clock, NullLogger<ProcessBattleHandler>.Instance);
+
+    public GetAdminStatsHandler GetAdminStats => new(Stats, Queue, Leaderboard, Clock);
 
     public Player Seed(string id, int attack = 70, int defense = 30, int hitPoints = 100, long gold = 500, long silver = 120)
     {

@@ -1,3 +1,78 @@
-<!-- STUB (MP-08): RED panel (rate, errors, duration), queue/worker (USE), game economy, live battles via SignalR group backoffice. -->
 <!doctype html>
-<title>Coliseum Back-office (stub)</title>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coliseum Back-office</title>
+  <link rel="stylesheet" href="backoffice.css">
+</head>
+<body>
+  <!--
+    Back-office (MP-08): RED of the API, USE of the queue, game economy and a live battle feed.
+    Vanilla JS, Chart.js and @microsoft/signalr from cdnjs, no build step, CSP enforced by the API.
+    Requires a service token: sign in with the API key (exchanged for a token kept in sessionStorage).
+  -->
+  <header>
+    <h1>Coliseum <span class="muted">back-office</span></h1>
+    <div class="status">
+      <span id="feed" class="pill">feed offline</span>
+      <span id="clock" class="muted"></span>
+      <button id="signout" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <section id="login" class="card narrow">
+    <h2>Sign in</h2>
+    <p class="muted">The API key is exchanged for a 24 h service token. The key itself is never stored.</p>
+    <label>API key <input id="apiKey" value="dev-service-key" autocomplete="off"></label>
+    <button id="signin" class="primary">Open back-office</button>
+    <p id="loginError" class="error" hidden></p>
+  </section>
+
+  <main id="dash" hidden>
+    <section class="tiles">
+      <div class="tile"><span class="label">Requests / s</span><strong id="tRate">–</strong><span class="sub" id="tRateSub"></span></div>
+      <div class="tile"><span class="label">5xx ratio</span><strong id="tErr">–</strong><span class="sub">last 30 s</span></div>
+      <div class="tile"><span class="label">p95 latency</span><strong id="tP95">–</strong><span class="sub" id="tP50"></span></div>
+      <div class="tile"><span class="label">Queue length / pending / DLQ</span><strong id="tQueue">–</strong><span class="sub">stream · in flight · poison</span></div>
+      <div class="tile"><span class="label">Battles settled</span><strong id="tProcessed">–</strong><span class="sub" id="tTurns"></span></div>
+      <div class="tile"><span class="label">Attacker win rate</span><strong id="tWin">–</strong><span class="sub">simulation baseline 72 % (equal stats)</span></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>API RED · requests/s and p95</h3>
+        <canvas id="chartRed" height="120"></canvas>
+      </div>
+      <div class="card">
+        <h3>Queue USE · submitted vs settled</h3>
+        <canvas id="chartQueue" height="120"></canvas>
+      </div>
+      <div class="card">
+        <h3>Economy · resources stolen (totals)</h3>
+        <div class="kv" id="economy"></div>
+        <canvas id="chartBuckets" height="110"></canvas>
+      </div>
+      <div class="card">
+        <h3>Leaderboard <span class="muted">live</span></h3>
+        <table class="board"><thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead><tbody id="board"></tbody></table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Live battles <span class="muted">click a row for the full report</span></h3>
+      <table class="feed"><thead><tr><th>Battle</th><th>Attacker</th><th>Defender</th><th>Status</th><th>Turns</th><th>Winner</th><th>Score</th></tr></thead><tbody id="battles"></tbody></table>
+    </section>
+  </main>
+
+  <dialog id="report">
+    <div class="dialogHead"><h3 id="reportTitle">Battle</h3><button id="closeReport">Close</button></div>
+    <pre id="reportMeta" class="meta"></pre>
+    <ol id="reportNarrative" class="narrative"></ol>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  <script src="backoffice.js"></script>
+</body>
+</html>

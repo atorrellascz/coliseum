@@ -71,6 +71,7 @@ public static class HostingExtensions
         app.MapPlayerEndpoints();
         app.MapBattleEndpoints();
         app.MapLeaderboardEndpoints();
+        app.MapAdminEndpoints();
         app.MapHub<ArenaHub>("/hubs/arena");
 
         return app;

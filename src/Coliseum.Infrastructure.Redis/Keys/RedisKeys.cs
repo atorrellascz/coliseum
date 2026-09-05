@@ -35,5 +35,8 @@ public sealed class RedisKeys(string prefix)
 
     public RedisKey Leaderboard => $"{Prefix}:leaderboard";
 
+    /// <summary>hash of back-office counters: processed, attackerWins, gold, silver, turns, turns:{bucket}</summary>
+    public RedisKey Stats => $"{Prefix}:stats:battles";
+
     public RedisChannel EventsChannel => RedisChannel.Literal($"{Prefix}:arena:events");
 }

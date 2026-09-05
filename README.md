@@ -186,16 +186,19 @@ from the environment or Kubernetes Secrets.
    http://localhost:8080/arena/?name=Bot&auto=1 in two tabs. Each tab creates its player and challenges random
    opponents every few seconds; HP bars animate turn by turn, loot and the leaderboard update from live events.
    Change `interval=3000` or add more tabs with other names.
-3. **Operate it**: Grafana at http://localhost:3000 (admin / admin), dashboard "Coliseum": request rate, 5xx ratio,
+3. **Operate it**: the back-office at http://localhost:8080/backoffice/ (sign in with `dev-service-key`): API RED, queue USE,
+   economy with the attacker win rate against the 72 % baseline, and a live battle feed with full reports. Grafana at http://localhost:3000 (admin / admin), dashboard "Coliseum": request rate, 5xx ratio,
    latency percentiles, submitted vs processed, submission-to-settlement p95, queue length / pending / DLQ,
    resources stolen, turns per battle.
 4. **Talk to the API**: http://localhost:8080/scalar, or the curl walkthrough above.
-5. **Let an agent play**: point an MCP client at http://localhost:8082/mcp with header `X-Api-Key: dev-mcp-key`
+5. **Embed it**: http://localhost:8080/widget/ shows the one-script-tag widget (live leaderboard + battle feed) with a
+   player token; security notes in [docs/widget.md](docs/widget.md). Spectate a player: http://localhost:8080/arena/?watch=<playerId>.
+6. **Let an agent play**: point an MCP client at http://localhost:8082/mcp with header `X-Api-Key: dev-mcp-key`
    (stdio variant for Claude Desktop in [docs/mcp.md](docs/mcp.md)). Tools: create players, submit and wait for
    battles, read reports and the leaderboard, simulate battles and estimate win chances locally.
-6. **Kubernetes**: `KUBE_CONTEXT=docker-desktop bash scripts/helm-up.sh` (builds images, installs the chart, runs
+7. **Kubernetes**: `KUBE_CONTEXT=docker-desktop bash scripts/helm-up.sh` (builds images, installs the chart, runs
    the smoke test through a port-forward) or `bash scripts/k3d-up.sh` for a 3-node k3d cluster.
-7. **Break it and watch it recover**: kill the worker container mid-run (`docker compose kill worker` then
+8. **Break it and watch it recover**: kill the worker container mid-run (`docker compose kill worker` then
    `docker compose up -d worker`); pending battles are reclaimed and settled exactly once, `duplicate` never
    changes a balance.
 

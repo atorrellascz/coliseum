@@ -35,6 +35,7 @@ public sealed partial class ProcessBattleHandler(
     IBattleReportStore reports,
     IBattleLedger ledger,
     ILeaderboard leaderboard,
+    IGameStats stats,
     IEventPublisher events,
     BattleRules rules,
     IClock clock,
@@ -95,6 +96,7 @@ public sealed partial class ProcessBattleHandler(
 
         LogBattleDone(logger, report.BattleId.Value, report.WinnerId.Value, report.LoserId.Value, report.Turns, settlement.Score);
 
+        await stats.RecordBattleAsync(report, settlement, cancellationToken);
         await PublishAsync(report, settlement, now, cancellationToken);
 
         return Finish(ProcessOutcome.Processed, started);

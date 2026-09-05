@@ -15,7 +15,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-06 | API + Worker hosts, ServiceDefaults, auth, smoke script | [x] code done, review pending | see DEVLOG |
 | MP-06b | MCP server (tools over the API + local simulation) | [x] code done, review pending | see DEVLOG |
 | MP-07 | SignalR hub + arena auto-play client | [x] code done, review pending | see DEVLOG |
-| MP-08 | Back-office (RED / USE / economy) + admin stats | [ ] | |
+| MP-08 | Back-office (RED / USE / economy) + admin stats + widget + arena polish | [x] code done, review pending | see DEVLOG |
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
 | MP-10 | GitHub Actions CI + release | [x] CI green on GitHub (run 33928977302) | 41b62e7, 2cc0cdf |
 | MP-11 | Argo CD + Rollouts canary | [ ] | |
@@ -184,6 +184,17 @@ Verification for MP-07 DoD
 - [x] .github/workflows/release.yml — GHCR images with SBOM/provenance, NuGet packages to GitHub Packages, Helm chart as OCI
 - [x] docs/ci.md; README badge
 - [x] First real CI run green: build-test, integration (Redis service container), images ×3 + Trivy, helm + kubeconform (run 33928977302). A first attempt failed on a non-existent `trivy-action@0.28.0` tag; pinned to v0.36.0.
+
+## MP-08 checklist (review one by one)
+
+- [x] Application/Ports/IGameStats.cs (+ GameStatsSnapshot with turn buckets), UseCases/Admin/GetAdminStatsHandler.cs, Contracts/Admin/AdminStatsResponse.cs
+- [x] Infrastructure: RedisGameStats.cs (pipelined HINCRBY on `stats:battles`), RedisKeys.Stats, DI registration; ProcessBattleHandler records stats after settlement
+- [x] Api/Endpoints/AdminEndpoints.cs — `GET /admin/stats` (service policy); SecurityHeaders — CSP for /, /arena, /backoffice, /widget
+- [x] wwwroot/backoffice: index.html, backoffice.css, backoffice.js — API-key sign-in, RED from /metrics (client-side histogram quantiles), USE + economy from /admin/stats, Chart.js charts, live feed via JoinBackOffice with click-to-open report
+- [x] wwwroot/widget: coliseum-widget.js (shadow DOM, least-privilege token), index.html + demo.js + demo.css; docs/widget.md
+- [x] wwwroot/arena: floating damage numbers, hit/crit/miss, loot toasts, winner/loser highlight, seed line with MCP replay hint, spectator mode (?watch=), keyboard shortcuts (F/A/R/S), optional sound (off by default)
+- [x] Tests: GetAdminStatsHandlerTests (unit), AdminStatsTests (401 / 403 / 200), fakes updated
+- [ ] User reviewed every file above
 
 ## MP-12 checklist
 

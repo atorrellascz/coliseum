@@ -21,19 +21,40 @@ public static class SecurityHeaders
         return builder;
     }
 
+    /// <summary>
+    /// Content Security Policy for the static clients (arena, back-office, widget demo, landing page): scripts only
+    /// from this origin and cdnjs (SignalR, Chart.js), no inline scripts, connections only to this origin (REST +
+    /// WebSocket), no framing. API responses are JSON and get no CSP; Scalar (/scalar) ships its own inline assets
+    /// and is excluded on purpose.
+    /// </summary>
+    public const string StaticContentSecurityPolicy =
+        "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
+
+    private static readonly string[] StaticPrefixes = ["/arena", "/backoffice", "/widget"];
+
     public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app) =>
         app.Use(static (context, next) =>
         {
             context.Response.OnStarting(static state =>
             {
-                var headers = ((HttpContext)state).Response.Headers;
+                var http = (HttpContext)state;
+                var headers = http.Response.Headers;
                 headers["X-Content-Type-Options"] = "nosniff";
                 headers["X-Frame-Options"] = "DENY";
                 headers["Referrer-Policy"] = "no-referrer";
                 headers["Cache-Control"] = "no-store";
+                if (IsStaticClient(http.Request.Path))
+                {
+                    headers["Content-Security-Policy"] = StaticContentSecurityPolicy;
+                }
+
                 return Task.CompletedTask;
             }, context);
 
             return next(context);
         });
+
+    private static bool IsStaticClient(PathString path) =>
+        path == "/" || path == "/index.html" || StaticPrefixes.Any(prefix => path.StartsWithSegments(prefix));
 }

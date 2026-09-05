@@ -57,6 +57,10 @@ While queued or processing only the header fields are present. When done:
 ```
 Non-participants receive 404, not 403.
 
+### `GET /admin/stats` (service) → 200
+
+Back-office snapshot: `economy` (battles processed, attacker wins and win rate, gold and silver stolen, average turns, turn buckets), `queue` (length, pending, dead-lettered) and `top` (leaderboard top 10). Player tokens get 403.
+
 ### `GET /leaderboard?offset=0&limit=50` → 200
 
 `{ "entries": [ { "rank": 1, "score": 44, "playerId": "..." } ], "offset": 0, "limit": 50, "total": 3 }`. `limit` ≤ 100.

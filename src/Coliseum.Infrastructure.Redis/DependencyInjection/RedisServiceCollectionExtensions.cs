@@ -32,6 +32,7 @@ public static class RedisServiceCollectionExtensions
         services.TryAddSingleton<IBattleReportStore, RedisBattleReportStore>();
         services.TryAddSingleton<ILeaderboard, RedisLeaderboard>();
         services.TryAddSingleton<IEventPublisher, RedisEventPublisher>();
+        services.TryAddSingleton<IGameStats, RedisGameStats>();
 
         services.AddHealthChecks().AddCheck<RedisHealthCheck>("redis", tags: ["ready"]);
 

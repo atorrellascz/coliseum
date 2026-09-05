@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.TryAddScoped<SubmitBattleHandler>();
         services.TryAddScoped<GetBattleHandler>();
         services.TryAddScoped<GetLeaderboardHandler>();
+        services.TryAddScoped<UseCases.Admin.GetAdminStatsHandler>();
 
         return services;
     }

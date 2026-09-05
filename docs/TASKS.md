@@ -7,7 +7,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 
 | MP | Scope | Status | Commit |
 |----|-------|--------|--------|
-| MP-01 | Terraform (AWS: vpc, eks, ecr, elasticache, secrets, iam), validated not applied | [ ] | |
+| MP-01 | Terraform (AWS: vpc, eks, ecr, elasticache, secrets, iam), validated not applied | [x] `terraform validate` green locally and in CI | see DEVLOG |
 | MP-02 | Solution skeleton, CPM, analyzers, stubs, docs placeholders | [x] | c868c18, 7080a1d |
 | MP-03 | Domain: value objects, Player aggregate, PRNG, BattleEngine, unit + golden tests | [x] code done, review pending | see DEVLOG |
 | MP-04 | Application: ports, use cases, BattleScheduler, telemetry, fakes | [x] code done, review pending | see DEVLOG |
@@ -195,6 +195,13 @@ Verification for MP-07 DoD
 - [x] wwwroot/arena: floating damage numbers, hit/crit/miss, loot toasts, winner/loser highlight, seed line with MCP replay hint, spectator mode (?watch=), keyboard shortcuts (F/A/R/S), optional sound (off by default)
 - [x] Tests: GetAdminStatsHandlerTests (unit), AdminStatsTests (401 / 403 / 200), fakes updated
 - [ ] User reviewed every file above
+
+## MP-01 checklist
+
+- [x] deploy/terraform: versions.tf, providers.tf, variables.tf (validated environment), main.tf (vpc 3 AZ, eks 1.31 with IRSA + managed node group + add-ons, ecr x3 immutable/scan/lifecycle, elasticache redis 7.1 multi-AZ TLS + auth token + `noeviction` parameter group + SG from EKS nodes, Secrets Manager JSON secret, IRSA role for External Secrets), outputs.tf (incl. `helm_values_snippet`), backend.tf (S3 + DynamoDB, commented), envs/dev.tfvars, README with cost estimate
+- [x] `terraform fmt -check`, `terraform init -backend=false`, `terraform validate` green (Terraform 1.16.1, aws provider 5.100, modules vpc 5.21 / eks 20.37 / ecr 2.4 / elasticache 1.11 / iam 5.60); `.terraform.lock.hcl` committed
+- [x] CI job `terraform` (fmt, init, validate)
+- [ ] Applied to AWS: no (cost); the README states it
 
 ## MP-12 checklist
 

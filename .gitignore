@@ -29,7 +29,7 @@ appsettings.*.local.json
 deploy/terraform/.terraform/
 deploy/terraform/*.tfstate
 deploy/terraform/*.tfstate.*
-deploy/terraform/.terraform.lock.hcl
+# deploy/terraform/.terraform.lock.hcl is committed on purpose (reproducible provider versions)
 deploy/terraform/crash.log
 
 # ---- Helm ----

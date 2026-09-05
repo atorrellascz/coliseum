@@ -11,7 +11,8 @@ ARGO_VERSION="${ARGO_VERSION:-stable}"
 
 echo "== Argo CD ($ARGO_VERSION) on $CONTEXT"
 $K create namespace argocd --dry-run=client -o yaml | $K apply -f - >/dev/null
-$K apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/$ARGO_VERSION/manifests/install.yaml" >/dev/null
+# Server-side apply: the ApplicationSet CRD exceeds the 256 KB last-applied annotation limit of client-side apply.
+$K apply --server-side --force-conflicts -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/$ARGO_VERSION/manifests/install.yaml" >/dev/null
 $K -n argocd rollout status deploy/argocd-server --timeout=240s
 $K -n argocd rollout status deploy/argocd-repo-server --timeout=240s
 

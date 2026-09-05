@@ -29,7 +29,7 @@ K="kubectl --context k3d-coliseum"           # or --context docker-desktop; neve
 
 # Argo CD
 $K create namespace argocd
-$K apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+$K apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml   # server-side: the ApplicationSet CRD is too big for client-side apply
 $K -n argocd rollout status deploy/argocd-server
 
 # Argo Rollouts (only needed when api.rollout.enabled=true)
@@ -54,6 +54,11 @@ first (`scripts/k3d-up.sh` does both and can be run before pointing Argo at the 
 - `helm lint` and `helm template` pass with `values.yaml`, `values-local.yaml` and `values-dev.yaml`; CI runs
   `kubeconform -strict -ignore-missing-schemas` on the rendered output (Rollout / AnalysisTemplate / ServiceMonitor
   are CRDs without upstream JSON schemas, hence the flag).
-- The Argo CD manifests are validated structurally (`kubectl --dry-run=client` requires the CRDs; not part of CI).
-- A live Argo CD installation was not exercised in this repository: the steps above are the documented path, and
-  the chart they sync is the one already verified on Docker Desktop and k3d (docs/local-kubernetes.md).
+- Exercised live on k3d (2026-09-05) with `scripts/argocd-up.sh`: Argo CD stable installed with server-side apply
+  (the ApplicationSet CRD exceeds the client-side annotation limit), AppProject + Application applied, the
+  application synced from GitHub `main` and reached **Healthy** with all five workloads created by Argo; deleting
+  the MCP Deployment was repaired by self-heal (Argo notices within its refresh interval, up to 3 minutes, or at
+  once after a Refresh in the UI). A permanent OutOfSync on the Redis StatefulSet was traced to
+  `volumeClaimTemplates` lacking `apiVersion`/`kind` and fixed in the chart.
+- Argo Rollouts (the canary) was validated by rendering and kubeconform only; installing the Rollouts controller
+  and promoting a canary live is the next step.

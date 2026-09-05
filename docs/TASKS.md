@@ -18,7 +18,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` dropped (reason i
 | MP-08 | Back-office (RED / USE / economy) + admin stats + widget + arena polish | [x] code done, review pending | see DEVLOG |
 | MP-09 | Dockerfile, Compose (+ Grafana), Helm, k3d comparison | [x] code done, review pending; Compose, docker-desktop and k3d all verified | see DEVLOG |
 | MP-10 | GitHub Actions CI + release | [x] CI green on GitHub (run 33928977302) | 41b62e7, 2cc0cdf |
-| MP-11 | Argo CD + Rollouts canary | [x] manifests + Rollout template validated (lint, template, kubeconform in CI); live Argo CD install documented, not exercised | see DEVLOG |
+| MP-11 | Argo CD + Rollouts canary | [x] Argo CD exercised live on k3d (Synced/Healthy, self-heal); Rollouts validated by render only | see DEVLOG |
 | MP-12 | Final docs, video, tag v1.0.0 | [x] docs done, v1.0.0 released (GHCR images, NuGet, Helm OCI); video is the user's | 310cdbc, v1.0.0 |
 
 ## MP-03 checklist (review one by one)
@@ -211,7 +211,7 @@ Verification for MP-07 DoD
 - [x] values-dev.yaml (ECR, external Redis from the secret via `redis.external.fromSecret`, ExternalSecret, ServiceMonitor, ingress, rollout)
 - [x] docs/gitops.md with install steps and an explicit validation status
 - [x] `helm lint` + `helm template` with values / values-local / values-dev; CI kubeconform on all three
-- [ ] Live Argo CD sync on a local cluster: not exercised (documented path)
+- [x] Live Argo CD on k3d: install (server-side apply), sync from GitHub main, Healthy, self-heal of a deleted Deployment; StatefulSet OutOfSync fixed (volumeClaimTemplates apiVersion/kind)
 
 ## MP-12 checklist
 

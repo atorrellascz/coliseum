@@ -28,7 +28,8 @@ bash scripts/k3d-up.sh
 bash scripts/argocd-up.sh
 #    -> Argo CD installed, AppProject + Application applied, "Synced/Healthy", UI https://localhost:8443 (admin / printed password)
 #    -> in the UI: application "coliseum" -> resource tree: Redis StatefulSet, worker, api (+HPA/PDB), mcp, network policies
-#    -> prove self-heal: kubectl --context k3d-coliseum -n coliseum delete deploy coliseum-coliseum-mcp ; watch Argo recreate it
+#    -> prove self-heal: kubectl --context k3d-coliseum -n coliseum delete deploy coliseum-coliseum-mcp ; Argo recreates it
+#       within its refresh interval (up to 3 min) or immediately after you press Refresh in the UI
 
 # 4. chaos: a consumer takes 20 battles and dies without acknowledging; watch XAUTOCLAIM + exactly-once settlement
 MODE=k8s KUBE_CONTEXT=k3d-coliseum API_URL=http://localhost:18080 bash scripts/chaos-worker.sh

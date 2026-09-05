@@ -60,7 +60,11 @@ spec:
             - name: data
               mountPath: /data
   volumeClaimTemplates:
-    - metadata:
+    # apiVersion/kind are what the API server stores; declaring them keeps Argo CD (server-side apply) from
+    # reporting a permanent OutOfSync on the StatefulSet.
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data
       spec:
         accessModes: ["ReadWriteOnce"]

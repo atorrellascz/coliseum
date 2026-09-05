@@ -30,8 +30,8 @@ and calls `helm-up.sh` with `KUBE_CONTEXT=k3d-coliseum`. k3d v5.9.0 (k3s v1.35.5
 |------|------|
 | `k3d cluster create coliseum --agents 2 --wait` | 116 s |
 | Image rebuild (Dockerfile had changed) + `k3d image import` of three ~190 MB images | ~9 min |
-| `helm upgrade --install --wait` (4 pods across 3 nodes) | 49 s |
-| Whole `scripts/k3d-up.sh` (create, build, import, install, port-forward, smoke) | 719 s |
+| `helm upgrade --install --wait` (4 pods across 3 nodes) | 49 s (198 s when the bundled Grafana stack `monitoring.otelLgtm` is enabled: 3.6 GB image, imported not pulled) |
+| Whole `scripts/k3d-up.sh` (create, build, import, install, port-forward, smoke) | 719 s (866 s with otel-lgtm imported) |
 
 Result: 4/4 pods Running, `scripts/smoke.sh` green. The image import is the dominant cost on k3d; a local registry
 (`k3d registry create`) or pulling from GHCR after the release workflow removes it. What k3d adds over Docker Desktop:

@@ -223,7 +223,7 @@ Verification for MP-07 DoD
 - [x] Spanish: _referencia/11-COMO-PROBAR-Y-DEMO.md, _referencia/12-GUION-FINAL-ENTREVISTA.md
 - [x] Tag v1.0.0: release run 33952022657 green (GHCR images with SBOM, NuGet packages, Helm OCI chart)
 - [x] Submission package: `scripts/submit.ps1` writes `Torrellas_Atahualpa.bundle` (git bundle, all refs) and the project guide as PDF (`docs/project-guide.md`) into an output folder outside the repo
-- [ ] The user uploads the bundle + PDF through the ATS form (single submission, several files allowed)
+- [x] Submitted 2026-09-06 through the ATS form (Recruitis): `Torrellas_Atahualpa.bundle` (history up to `0315d65`, tag v1.0.0) + `Torrellas_Atahualpa_project-guide.pdf`
 
 ## Assumptions added in MP-03 (to surface in README)
 - SUP-11: attack and hit points in [1, 10,000], defense in [0, 10,000]; bounds the turn count and the report size.

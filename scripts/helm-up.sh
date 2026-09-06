@@ -20,10 +20,9 @@ docker build --target mcp    -t coliseum-mcp:local    . >/dev/null
 
 if [[ "$CONTEXT" == k3d-* ]]; then
   echo "== importing images into $CONTEXT"
-  k3d image import -c "${CONTEXT#k3d-}" coliseum-api:local coliseum-worker:local coliseum-mcp:local
-  # The bundled Grafana stack is ~1 GB; pulling it inside each k3d node takes minutes, importing it takes seconds.
-  docker image inspect grafana/otel-lgtm:latest >/dev/null 2>&1 || docker pull grafana/otel-lgtm:latest >/dev/null
-  k3d image import -c "${CONTEXT#k3d-}" grafana/otel-lgtm:latest redis:7-alpine
+  # Through a single-platform tarball (scripts/k3d-import.sh): a direct `k3d image import` of registry images fails
+  # with Docker's containerd image store. The bundled Grafana stack is ~3.6 GB: importing beats pulling per node.
+  bash scripts/k3d-import.sh "${CONTEXT#k3d-}" coliseum-api:local coliseum-worker:local coliseum-mcp:local     grafana/otel-lgtm:latest redis:7-alpine
 fi
 
 echo "== helm upgrade --install ($CONTEXT / $NAMESPACE)"

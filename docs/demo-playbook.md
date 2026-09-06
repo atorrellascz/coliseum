@@ -18,7 +18,8 @@ PowerShell equivalents are given where the syntax differs.
 
   Expected `k3d-up.sh` output: `INFO[00xx] Creating node ...`, `Cluster 'coliseum' created successfully!` (the odd
   indentation of those lines is k3d's logger using carriage returns, not an error), `cluster created in ~40 s`,
-  `== building images`, `== importing images`, `helm install took Ns`, 5 pods Running, `SMOKE OK` and the URLs.
+  `== building images`, `== importing images` (a `docker save` of ~4 GB, then `Successfully imported`; no `ERRO` lines),
+  `helm install took Ns`, 5 pods Running, `SMOKE OK` and the URLs.
 - Stale hosts: `netstat -ano | findstr :8080` → `taskkill /F /PID <pid>`.
 - **One stack at a time.** The Kubernetes port-forwards (`scripts/port-forward.sh`) use the same local ports as
   Compose (API 8080, MCP 8082, Grafana 3000) so every URL below is identical on both tracks; the script refuses to

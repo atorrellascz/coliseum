@@ -69,6 +69,7 @@ by accident.
 | `scripts/helm-up.sh` | build images, install the chart, `port-forward.sh`, smoke |
 | `scripts/port-forward.sh` | forward API 8080, MCP 8082, Grafana 3000 (the Compose ports: one stack at a time); refuses to start while Compose is up |
 | `scripts/k3d-up.sh` | 3-node k3d cluster + image import + `helm-up.sh` |
+| `scripts/k3d-import.sh` | import images into k3d through a single-platform tarball (works with Docker's containerd image store) |
 | `scripts/argocd-up.sh` | install Argo CD, apply AppProject + Application, wait for Synced/Healthy, port-forward the UI |
 | `scripts/chaos-worker.sh` | dead-consumer demo: XPENDING → XAUTOCLAIM → exactly-once settlement (Compose or `MODE=k8s`) |
 | `scripts/mcp-demo.sh` | MCP walkthrough over HTTP (initialize, tools/list, simulate, create players, play, leaderboard) |

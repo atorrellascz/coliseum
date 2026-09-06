@@ -33,7 +33,10 @@ and calls `helm-up.sh` with `KUBE_CONTEXT=k3d-coliseum`. k3d v5.9.0 (k3s v1.35.5
 | `helm upgrade --install --wait` (4 pods across 3 nodes) | 49 s (198 s when the bundled Grafana stack `monitoring.otelLgtm` is enabled: 3.6 GB image, imported not pulled) |
 | Whole `scripts/k3d-up.sh` (create, build, import, install, port-forward, smoke) | 719 s (866 s with otel-lgtm imported) |
 
-Result: 4/4 pods Running, `scripts/smoke.sh` green. The image import is the dominant cost on k3d; a local registry
+Result: 4/4 pods Running, `scripts/smoke.sh` green. Images go through `scripts/k3d-import.sh` (`docker save --platform`
++ `k3d image import <tar>`): with Docker's containerd image store, a direct import of images pulled from a registry
+fails on every node with `content digest ... not found` (multi-platform attestation manifests) and the pods fall back
+to pulling from the registry. The image import is the dominant cost on k3d; a local registry
 (`k3d registry create`) or pulling from GHCR after the release workflow removes it. What k3d adds over Docker Desktop:
 
 | Concern | Docker Desktop | k3d |

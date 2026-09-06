@@ -6,10 +6,12 @@ PowerShell equivalents are given where the syntax differs.
 
 ## 0. Before you start
 
-- Docker Desktop running. Free ports: 8080-8082, 3000, 6379 (Compose); 18080, 13000, 8443 (Kubernetes port-forwards).
+- Docker Desktop running. Free ports: 8080, 8082, 3000 (both tracks), 8081 and 6379 (Compose), 8443 (Argo CD UI).
 - Stale hosts: `netstat -ano | findstr :8080` → `taskkill /F /PID <pid>`.
-- Compose and Kubernetes can run at the same time (the Kubernetes track only uses port-forwards), but a recording is
-  cleaner with one of them. `docker compose ... down -v` frees Compose.
+- **One stack at a time.** The Kubernetes port-forwards (`scripts/port-forward.sh`) use the same local ports as
+  Compose (API 8080, MCP 8082, Grafana 3000) so every URL below is identical on both tracks; the script refuses to
+  start while Compose is up, and Compose fails to bind 8080 while the forwards are up. Switch with
+  `docker compose -f deploy/compose/docker-compose.yml down -v` or `pkill -f port-forward`.
 - `kubectl` on this machine points at a production cluster by default. **Every command below passes `--context`.**
 
 ## Track A: Kubernetes (k3d) + Argo CD
@@ -18,29 +20,32 @@ PowerShell equivalents are given where the syntax differs.
 # 1. cluster + images + chart + smoke (≈ 3 min with warm images, ≈ 12 min the first time)
 bash scripts/k3d-up.sh
 #    -> "cluster created in Ns", "helm install took Ns", 5 pods Running (api, worker, mcp, redis, otel-lgtm), SMOKE OK
-#    -> API http://localhost:18080, Grafana http://localhost:13000 (admin/admin)
+#    -> API http://localhost:8080, MCP http://localhost:8082/mcp, Grafana http://localhost:3000 (admin/admin)
 
 # 2. the game, live
-#    open http://localhost:18080/arena/?name=Ata&auto=1 and http://localhost:18080/arena/?name=Bot&auto=1
-#    open http://localhost:18080/backoffice/  (API key dev-service-key): tiles, charts, live feed, operations panel
+#    open http://localhost:8080/arena/?name=Ata&auto=1 and http://localhost:8080/arena/?name=Bot&auto=1
+#    open http://localhost:8080/backoffice/  (API key dev-service-key): tiles, charts, live feed, operations panel
 
 # 3. GitOps: hand the namespace to Argo CD
 bash scripts/argocd-up.sh
 #    -> Argo CD installed, AppProject + Application applied, "Synced/Healthy", UI https://localhost:8443 (admin / printed password)
+#    -> port-forwards 8080/8082/3000 re-opened (Argo re-created the Services); the arena tabs just need a reload
 #    -> in the UI: application "coliseum" -> resource tree: Redis StatefulSet, worker, api (+HPA/PDB), mcp, network policies
 #    -> prove self-heal: kubectl --context k3d-coliseum -n coliseum delete deploy coliseum-coliseum-mcp ; Argo recreates it
 #       within its refresh interval (up to 3 min) or immediately after you press Refresh in the UI
 
 # 4. chaos: a consumer takes 20 battles and dies without acknowledging; watch XAUTOCLAIM + exactly-once settlement
-MODE=k8s KUBE_CONTEXT=k3d-coliseum API_URL=http://localhost:18080 bash scripts/chaos-worker.sh
+MODE=k8s KUBE_CONTEXT=k3d-coliseum bash scripts/chaos-worker.sh
 #    -> XPENDING shows 20 entries owned by "ghost-crashed"; the worker logs "Reclaimed 20 pending entries"; settled 20/20, pending 0
 #    (or simply: kubectl --context k3d-coliseum -n coliseum delete pod -l app.kubernetes.io/component=worker while the arena tabs play)
 
-# 5. teardown
-k3d cluster delete coliseum
+# 5. teardown (also drops the port-forwards)
+k3d cluster delete coliseum; pkill -f port-forward
 ```
 
 ## Track B: Compose (fast path)
+
+Same URLs as track A (stop the Kubernetes port-forwards first: `pkill -f port-forward`).
 
 ```bash
 docker compose -f deploy/compose/docker-compose.yml up --build -d      # first time ≈ 4-5 min (three images)

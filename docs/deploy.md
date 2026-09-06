@@ -65,7 +65,8 @@ by accident.
 | Script | Purpose |
 |--------|---------|
 | `scripts/smoke.sh` / `scripts/smoke.ps1` | end-to-end check through the API (token, players, battles, leaderboard accounting) |
-| `scripts/helm-up.sh` | build images, install the chart, port-forward API (18080) and Grafana (13000), smoke |
+| `scripts/helm-up.sh` | build images, install the chart, `port-forward.sh`, smoke |
+| `scripts/port-forward.sh` | forward API 8080, MCP 8082, Grafana 3000 (the Compose ports: one stack at a time); refuses to start while Compose is up |
 | `scripts/k3d-up.sh` | 3-node k3d cluster + image import + `helm-up.sh` |
 | `scripts/argocd-up.sh` | install Argo CD, apply AppProject + Application, wait for Synced/Healthy, port-forward the UI |
 | `scripts/chaos-worker.sh` | dead-consumer demo: XPENDING → XAUTOCLAIM → exactly-once settlement (Compose or `MODE=k8s`) |

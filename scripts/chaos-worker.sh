@@ -5,7 +5,7 @@
 # entries with XREADGROUP as consumer "ghost-crashed" and never acks them (exactly what a crashed worker leaves behind).
 #
 #   bash scripts/chaos-worker.sh                                      # Compose stack (default)
-#   MODE=k8s KUBE_CONTEXT=k3d-coliseum API_URL=http://localhost:18080 bash scripts/chaos-worker.sh
+#   MODE=k8s KUBE_CONTEXT=k3d-coliseum bash scripts/chaos-worker.sh    # same URL: port-forward.sh uses the Compose ports
 set -euo pipefail
 cd "$(dirname "$0")/.."
 MODE="${MODE:-compose}"

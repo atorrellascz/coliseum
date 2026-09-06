@@ -2,7 +2,8 @@
 # Install Argo CD on a local cluster and let it sync Coliseum from GitHub (GitOps demo).
 #   KUBE_CONTEXT=k3d-coliseum bash scripts/argocd-up.sh        # after scripts/k3d-up.sh (images imported)
 #   KUBE_CONTEXT=docker-desktop bash scripts/argocd-up.sh
-# Prints the UI URL and the admin password; leaves a port-forward running on 8443 until you close the shell.
+# Prints the UI URL and the admin password; leaves port-forwards running (Argo UI 8443; API 8080, MCP 8082,
+# Grafana 3000 re-established, since uninstalling the helm release drops the ones from helm-up.sh).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 CONTEXT="${KUBE_CONTEXT:-k3d-coliseum}"
@@ -33,6 +34,7 @@ $K -n coliseum get pods
 
 PASS=$($K -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)
 $K -n argocd port-forward svc/argocd-server 8443:443 >/dev/null 2>&1 &
+# The Services were re-created by Argo: the port-forwards opened by helm-up.sh are dead. Open them again.
+KUBE_CONTEXT="$CONTEXT" bash scripts/port-forward.sh
 echo
 echo "Argo CD UI: https://localhost:8443  (user admin, password: $PASS)  -> application 'coliseum' shows the resource tree"
-echo "API through the cluster: kubectl --context $CONTEXT -n coliseum port-forward svc/coliseum-coliseum-api 18080:80"

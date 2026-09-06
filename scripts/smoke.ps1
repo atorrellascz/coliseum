@@ -1,6 +1,6 @@
 # PowerShell wrapper for scripts/smoke.sh (which needs bash: Git Bash ships with Git for Windows).
 #   .\scripts\smoke.ps1                                  # defaults: http://localhost:8080, dev-service-key
-#   .\scripts\smoke.ps1 -ApiUrl http://localhost:18080   # e.g. a kubectl port-forward
+#   .\scripts\smoke.ps1 -ApiUrl http://localhost:5080    # e.g. a host started with dotnet run
 param(
     [string]$ApiUrl = "http://localhost:8080",
     [string]$ApiKey = "dev-service-key",

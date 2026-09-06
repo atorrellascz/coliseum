@@ -3,7 +3,8 @@
 #   KUBE_CONTEXT=docker-desktop bash scripts/helm-up.sh
 #   KUBE_CONTEXT=k3d-coliseum  bash scripts/helm-up.sh      (after scripts/k3d-up.sh)
 # Always passes --context explicitly: never rely on the globally selected kubectl context.
-# The port-forwards (API 18080, Grafana 13000) stay up until this shell exits or `pkill -f port-forward`.
+# Port-forwards via scripts/port-forward.sh: API 8080, MCP 8082, Grafana 3000 (the Compose ports, so the two
+# stacks cannot run together). They stay up until this shell exits or `pkill -f port-forward`.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -35,14 +36,6 @@ echo "   helm install took $(( $(date +%s) - START ))s"
 
 $K -n "$NAMESPACE" get pods
 
-echo "== port-forward (API 18080, Grafana 13000) + smoke"
-$K -n "$NAMESPACE" port-forward "svc/$RELEASE-coliseum-api" 18080:80 >/dev/null 2>&1 &
-$K -n "$NAMESPACE" port-forward "svc/$RELEASE-coliseum-otel-lgtm" 13000:3000 >/dev/null 2>&1 &
-for i in $(seq 1 30); do curl -sf http://localhost:18080/healthz/ready >/dev/null && break; sleep 1; done
-API_URL=http://localhost:18080 API_KEY=dev-service-key bash scripts/smoke.sh
-
-echo
-echo "API:      http://localhost:18080   (arena: /arena/?name=Ata&auto=1  back-office: /backoffice/  docs: /scalar)"
-echo "Grafana:  http://localhost:13000   (admin / admin, dashboard Coliseum)"
-echo "MCP:      kubectl --context $CONTEXT -n $NAMESPACE port-forward svc/$RELEASE-coliseum-mcp 18082:80"
-echo "Port-forwards keep running in the background of this shell; stop them with: pkill -f port-forward"
+echo "== port-forward (API 8080, MCP 8082, Grafana 3000) + smoke"
+KUBE_CONTEXT="$CONTEXT" NAMESPACE="$NAMESPACE" RELEASE="$RELEASE" bash scripts/port-forward.sh
+API_URL=http://localhost:8080 API_KEY=dev-service-key bash scripts/smoke.sh

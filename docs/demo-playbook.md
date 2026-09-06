@@ -170,7 +170,7 @@ identity). Without an account show `validate`, `providers` and the README's cost
 ## 10. Teardown
 
 ```powershell
-k3d cluster delete coliseum
+k3d cluster delete coliseum                        # older window without the PATH entry: & "$HOME\bin\k3d.exe" cluster delete coliseum
 Get-Job | Stop-Job; Get-Job | Remove-Job                             # leftover PowerShell jobs
 Get-Process kubectl -ErrorAction SilentlyContinue | Stop-Process     # port-forwards
 ```

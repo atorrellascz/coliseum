@@ -29,13 +29,15 @@ for port in 8080 8082 3000; do
   fi
 done
 
+$K get svc "$RELEASE-coliseum-api" >/dev/null 2>&1   || { echo "Service $RELEASE-coliseum-api not found in context $CONTEXT / namespace $NAMESPACE (is the chart installed?)" >&2; exit 1; }
 $K port-forward "svc/$RELEASE-coliseum-api" 8080:80 >/dev/null 2>&1 &
 $K port-forward "svc/$RELEASE-coliseum-mcp" 8082:80 >/dev/null 2>&1 &
 if $K get svc "$RELEASE-coliseum-otel-lgtm" >/dev/null 2>&1; then
   $K port-forward "svc/$RELEASE-coliseum-otel-lgtm" 3000:3000 >/dev/null 2>&1 &
 fi
-for i in $(seq 1 30); do curl -sf http://localhost:8080/healthz/ready >/dev/null && break; sleep 1; done
-curl -sf http://localhost:8080/healthz/ready >/dev/null || { echo "API not reachable through the port-forward" >&2; exit 1; }
+READY=http://127.0.0.1:8080/healthz/ready
+for i in $(seq 1 30); do curl -sf --connect-timeout 2 "$READY" >/dev/null && break; sleep 1; done
+curl -sf --connect-timeout 2 "$READY" >/dev/null || { echo "API not reachable through the port-forward" >&2; exit 1; }
 
 echo "API:      http://localhost:8080   (arena: /arena/?name=Ata&auto=1  back-office: /backoffice/  docs: /scalar)"
 echo "MCP:      http://localhost:8082/mcp   (X-Api-Key: dev-mcp-key)"

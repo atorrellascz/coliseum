@@ -7,6 +7,13 @@ other, a worker simulates the battles deterministically, settles the loot atomic
 by everything they have stolen. Live events reach browsers over SignalR, AI agents play through an MCP server, and
 the whole thing ships as containers with a Helm chart, dashboards, alerts and runbooks.
 
+**Start here:** [docs/project-guide.md](docs/project-guide.md) is the companion document for the submission: how to
+open and run it, what was built, where each requirement of the task is implemented and tested, and what every
+document in this repository is for. The rest of this README is the technical front page.
+
+**Where it lives:** this repository is public at https://github.com/atorrellascz/coliseum. The submitted git bundle
+carries the same history (`main` and tag `v1.0.0`), so both copies are identical; CI runs on GitHub on every push.
+
 **Release:** [v1.0.0](https://github.com/atorrellascz/coliseum/releases/tag/v1.0.0): images `ghcr.io/atorrellascz/coliseum-{api,worker,mcp}:1.0.0`, NuGet `Coliseum.Domain` / `Coliseum.Contracts` 1.0.0, Helm chart `oci://ghcr.io/atorrellascz/charts/coliseum`.
 
 **Stack:** C# / .NET 10 · Redis 7 (store, queue, leaderboard, pub/sub, Lua) · ASP.NET Core Minimal APIs · SignalR ·
@@ -208,6 +215,7 @@ from the environment or Kubernetes Secrets.
 
 | Document | Content |
 |----------|---------|
+| [docs/project-guide.md](docs/project-guide.md) | Submission guide: how to run, requirement → code → tests, what every document is for |
 | [docs/architecture.md](docs/architecture.md) | Software design document |
 | [docs/redis-data-model.md](docs/redis-data-model.md) | Keys, scripts, operational settings |
 | [docs/api.md](docs/api.md) · [docs/live-events.md](docs/live-events.md) · [docs/mcp.md](docs/mcp.md) | Interfaces |

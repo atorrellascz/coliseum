@@ -1,8 +1,8 @@
 # Coliseum: project guide
 
 Companion document for the submission of the *Backend Development Hands-on Test* (Senior Server Engineer).
-Author: Atahualpa Torrellas. Repository: https://github.com/atorrellascz/coliseum (the bundle contains the same
-history: branch `main` and tag `v1.0.0`).
+Author: Atahualpa Torrellas. The repository is also public at https://github.com/atorrellascz/coliseum; the
+bundle carries the same history (branch `main` and tag `v1.0.0`), so either copy can be used.
 
 This guide explains how to open the bundle, how the repository is organised, where each requirement of the task is
 implemented and tested, and what every document in the repository is for, so a reviewer can go straight to what

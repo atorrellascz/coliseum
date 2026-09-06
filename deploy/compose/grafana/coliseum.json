@@ -122,7 +122,7 @@
         },
         {
           "expr": "sum by (result) (rate(coliseum_battles_processed_total[1m])) * 60",
-          "legendFormat": "processed {{result}}"
+          "legendFormat": "{{result}}"
         }
       ]
     },

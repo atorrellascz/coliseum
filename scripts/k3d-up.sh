@@ -6,7 +6,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 CLUSTER="${CLUSTER:-coliseum}"
-command -v k3d >/dev/null || { echo "k3d is not installed (winget install k3d-io.k3d / brew install k3d)"; exit 1; }
+# k3d has no winget package: it lives in ~/bin on Windows (Git Bash puts ~/bin on PATH, PowerShell does not).
+export PATH="$HOME/bin:$PATH"
+command -v k3d >/dev/null || { echo "k3d is not installed: download k3d.exe from https://github.com/k3d-io/k3d/releases into ~/bin (or choco install k3d / brew install k3d). From PowerShell use scripts\run.ps1: a plain bash may be WSL."; exit 1; }
 
 if ! k3d cluster list | grep -q "^$CLUSTER "; then
   START=$(date +%s)

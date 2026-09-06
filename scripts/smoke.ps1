@@ -9,7 +9,6 @@ param(
 $env:API_URL = $ApiUrl
 $env:API_KEY = $ApiKey
 $env:TIMEOUT_SECONDS = "$TimeoutSeconds"
-$bash = Get-Command bash -ErrorAction SilentlyContinue
-if (-not $bash) { throw "bash not found. Install Git for Windows (Git Bash) or run scripts/smoke.sh from WSL." }
-& bash (Join-Path $PSScriptRoot "smoke.sh")
+# Through run.ps1: a plain `bash` would be WSL on machines that have it (see scripts/run.ps1).
+& (Join-Path $PSScriptRoot "run.ps1") smoke.sh
 exit $LASTEXITCODE

@@ -64,6 +64,7 @@ by accident.
 
 | Script | Purpose |
 |--------|---------|
+| `scripts/run.ps1 <script.sh>` | PowerShell launcher that runs a script with Git Bash (a plain `bash` is WSL when WSL is installed, and has no k3d/helm/kubectl) |
 | `scripts/smoke.sh` / `scripts/smoke.ps1` | end-to-end check through the API (token, players, battles, leaderboard accounting) |
 | `scripts/helm-up.sh` | build images, install the chart, `port-forward.sh`, smoke |
 | `scripts/port-forward.sh` | forward API 8080, MCP 8082, Grafana 3000 (the Compose ports: one stack at a time); refuses to start while Compose is up |

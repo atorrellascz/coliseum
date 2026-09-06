@@ -7,6 +7,8 @@ PowerShell equivalents are given where the syntax differs.
 ## 0. Before you start
 
 - Docker Desktop running. Free ports: 8080, 8082, 3000 (both tracks), 8081 and 6379 (Compose), 8443 (Argo CD UI).
+- **PowerShell**: run the scripts through `.\scriptsun.ps1 <name>.sh` (e.g. `.\scriptsun.ps1 k3d-up.sh`). A plain `bash` in
+  PowerShell is WSL when WSL is installed, and WSL has no k3d, helm or kubectl; the scripts target Git Bash.
 - Stale hosts: `netstat -ano | findstr :8080` → `taskkill /F /PID <pid>`.
 - **One stack at a time.** The Kubernetes port-forwards (`scripts/port-forward.sh`) use the same local ports as
   Compose (API 8080, MCP 8082, Grafana 3000) so every URL below is identical on both tracks; the script refuses to

@@ -1,7 +1,6 @@
 # Developer entry points. Works with GNU make on Linux/macOS/Git Bash.
 # NOTE: dotnet test runs in Microsoft.Testing.Platform mode (global.json). Never pass --nologo to it:
 # the flag is forwarded to the test app, which rejects it with exit code 5 and reports "Zero tests ran".
-# STUB (MP-02): targets are declared; bodies are wired as each micro-project lands.
 
 .PHONY: docker-build helm-lint helm-up build test test-unit test-integration run-api run-worker run-mcp compose-up compose-down smoke format pack
 
